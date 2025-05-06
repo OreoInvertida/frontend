@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="../styles/login-signup.css">
+</head>
+<body>
+    <div class="signup-container">
+        <form class="signup-form" id="signup-form">
+            <h2>Regístrate para empezar a usar tu carpeta ciudadana</h2>
+            
+            <label for="first-name">Primer nombre</label>
+            <input type="text" id="first-name" name="first-name" required>
+
+            <label for="second-name">Segundo nombre</label>
+            <input type="text" id="second-name" name="second-name">
+
+            <label for="first-lastname">Primer apellido</label>
+            <input type="text" id="first-lastname" name="first-lastname" required>
+
+            <label for="second-lastname">Segundo apellido</label>
+            <input type="text" id="second-lastname" name="second-lastname">
+
+            <label for="document-type">Tipo de documento</label>
+            <select id="document-type" name="document-type" required>
+                <option value="">Seleccione tipo de documento</option>
+                <option value="cc">Cédula de ciudadanía</option>
+                <option value="ce">Cédula de extranjería</option>
+                <option value="passport">Pasaporte</option>
+                <option value="ti">Tarjeta de identidad</option>
+            </select>
+
+            <label for="document-number">Número de documento</label>
+            <input type="number" id="document-number" name="document-number" required>
+
+            <label for="address">Dirección de residencia</label>
+            <input type="text" id="address" name="address" required>
+
+            <div class="row">
+                <div>
+                    <label for="department">Departamento</label>
+                    <input type="text" id="department" name="department" required>
+                </div>
+                <div>
+                    <label for="city">Ciudad</label>
+                    <input type="text" id="city" name="city" required>
+                </div>
+            </div>
+
+            <label for="email">Correo electrónico</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="identity-document">Adjunta tu documento de identidad</label>
+            <input type="file" id="identity-document" name="identity-document" accept=".jpg,.png,.pdf" required>
+
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="confirm-password">Confirma tu contraseña</label>
+            <input type="password" id="confirm-password" name="confirm-password" required>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="terms" name="terms" required>
+                <label for="terms">Acepto los <a href="#">términos y condiciones</a></label>
+            </div>
+
+            <button type="submit" class="signup-button" id="signup-button" disabled>Registrar cuenta</button>
+
+            <p>¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>.</p>
+        </form>
+    </div>
+    <script src="../controllers/signup.js"></script>
+</body>
+</html>
