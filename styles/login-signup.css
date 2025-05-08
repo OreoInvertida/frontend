@@ -109,6 +109,57 @@ body {
     text-decoration: underline;
 }
 
+/* Terms and conditions modal styling */
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background-color: var(--blue);
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 15px 20px;
+}
+
+.modal-title {
+    font-weight: bold;
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.terms-text {
+    line-height: 1.8;
+    text-align: center;
+    font-style: italic;
+}
+
+.modal-footer {
+    border-top: 1px solid #eee;
+    padding: 15px;
+}
+
+.modal-footer .btn-primary {
+    background-color: var(--blue);
+    border-color: var(--blue);
+}
+
+.modal-footer .btn-primary:hover {
+    background-color: var(--berkeley-blue);
+    border-color: var(--berkeley-blue);
+}
+
+/* Button close (X) styling */
+.btn-close:focus {
+    box-shadow: none;
+    outline: none;
+}
+
 /* Media queries for responsive design */
 @media (max-width: 992px) {
     .signup-form {

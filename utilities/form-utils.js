@@ -257,6 +257,141 @@ function setupPasswordConfirmation(passwordId, confirmId) {
     });
 }
 
+/**
+ * Setup document number validation to allow only numbers
+ * @param {string} inputId - ID of the document number input field
+ */
+function setupDocumentNumberValidation(inputId) {
+    const documentInput = document.getElementById(inputId);
+    if (!documentInput) return;
+    
+    // Create feedback element
+    const feedbackId = `${inputId}-feedback`;
+    let feedbackElement = document.getElementById(feedbackId);
+    
+    if (!feedbackElement) {
+        feedbackElement = document.createElement('div');
+        feedbackElement.id = feedbackId;
+        feedbackElement.className = 'invalid-feedback';
+        feedbackElement.textContent = 'Solo se permiten números en este campo';
+        
+        documentInput.parentElement.appendChild(feedbackElement);
+    }
+    
+    // Add an input event listener to validate as the user types
+    documentInput.addEventListener('input', function(event) {
+        // Remove any non-numeric characters
+        const cleanValue = this.value.replace(/[^0-9]/g, '');
+        
+        // If the cleaned value is different from the input value, non-numeric chars were entered
+        if (cleanValue !== this.value) {
+            this.value = cleanValue; // Update the input value
+            this.classList.add('is-invalid');
+            feedbackElement.style.display = 'block';
+            
+            // Hide the error message after a short delay
+            setTimeout(() => {
+                this.classList.remove('is-invalid');
+                feedbackElement.style.display = 'none';
+            }, 2000);
+        }
+    });
+    
+    // Block all non-numeric keys
+    documentInput.addEventListener('keydown', function(event) {
+        // Allow: backspace, delete, tab, escape, enter, home, end, left, right, ctrl+a, ctrl+c, ctrl+v, ctrl+x
+        if (
+            [
+                'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'Home', 'End', 'ArrowLeft', 'ArrowRight',
+                'Control', 'Meta', 'Shift'
+            ].includes(event.key) ||
+            // Allow Ctrl+A/C/V/X
+            ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key))
+        ) {
+            // Let these keys work normally
+            return;
+        }
+        
+        // Block any key that is not a number (0-9)
+        if (!/^\d$/.test(event.key)) {
+            event.preventDefault();
+            
+            // Show validation message
+            this.classList.add('is-invalid');
+            feedbackElement.style.display = 'block';
+            
+            // Hide the error message after a short delay
+            setTimeout(() => {
+                this.classList.remove('is-invalid');
+                feedbackElement.style.display = 'none';
+            }, 1000);
+        }
+    });
+    
+    // Switch to text type to have more control over input
+    documentInput.type = 'text';
+    documentInput.inputMode = 'numeric';
+    documentInput.pattern = '[0-9]*';
+}
+
+/**
+ * Setup email validation to ensure proper email format
+ * @param {string} inputId - ID of the email input field
+ */
+function setupEmailValidation(inputId) {
+    const emailInput = document.getElementById(inputId);
+    if (!emailInput) return;
+    
+    // Create feedback element
+    const feedbackId = `${inputId}-feedback`;
+    let feedbackElement = document.getElementById(feedbackId);
+    
+    if (!feedbackElement) {
+        feedbackElement = document.createElement('div');
+        feedbackElement.id = feedbackId;
+        feedbackElement.className = 'invalid-feedback';
+        feedbackElement.textContent = 'Por favor, introduce un correo electrónico válido';
+        
+        emailInput.parentElement.appendChild(feedbackElement);
+    }
+    
+    // Email validation regex pattern
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    // Add blur event listener to validate when the user finishes typing
+    emailInput.addEventListener('blur', function() {
+        const isValid = emailPattern.test(this.value);
+        
+        if (this.value && !isValid) {
+            this.classList.add('is-invalid');
+            this.classList.remove('is-valid');
+            feedbackElement.style.display = 'block';
+        } else if (this.value) {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+            feedbackElement.style.display = 'none';
+        } else {
+            this.classList.remove('is-invalid', 'is-valid');
+            feedbackElement.style.display = 'none';
+        }
+    });
+    
+    // Also validate on input to provide real-time feedback
+    emailInput.addEventListener('input', function() {
+        const isValid = emailPattern.test(this.value);
+        
+        if (this.value && !isValid) {
+            this.classList.add('is-invalid');
+            this.classList.remove('is-valid');
+        } else if (this.value) {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        } else {
+            this.classList.remove('is-invalid', 'is-valid');
+        }
+    });
+}
+
 // Export all functions for use in other files
 export {
     setupPasswordToggle,
@@ -266,6 +401,8 @@ export {
     isValidPassword,
     setupPasswordValidation,
     setupPasswordConfirmation,
+    setupDocumentNumberValidation,
+    setupEmailValidation,
     PASSWORD_CRITERIA,
     PASSWORD_MESSAGES
 };

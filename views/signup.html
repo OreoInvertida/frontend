@@ -101,13 +101,40 @@
 
             <div class="mb-3 terms-checkbox-container">
                 <input type="checkbox" id="terms" name="terms" required>
-                <label for="terms">Acepto los <a href="#">términos y condiciones</a></label>
+                <label for="terms">Acepto los <a href="#" id="terms-link" data-bs-toggle="modal" data-bs-target="#termsModal">términos y condiciones</a>.</label>
             </div>
 
             <button type="submit" class="btn btn-primary w-100 signup-button" id="signup-button" disabled>Registrar cuenta</button>
 
             <p class="mt-3 text-center">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>.</p>
         </form>
+    </div>
+    
+    <!-- Terms and Conditions Modal -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">Términos y Condiciones</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="terms-text">
+                        Tres Anillos para los Reyes Elfos bajo el cielo,<br>
+                        Siete para los Señores Enanos en palacios de piedra,<br>
+                        Nueve para los Hombres Mortales condenados a morir,<br>
+                        Uno para el Señor Oscuro, sobre el trono oscuro<br>
+                        en la Tierra de Mordor donde se extienden las Sombras.<br>
+                        Un Anillo para gobernarlos a todos. Un Anillo para encontrarlos,<br>
+                        un Anillo para atraerlos a todos y atarlos en las tinieblas<br>
+                        en la Tierra de Mordor donde se extienden las Sombras.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Bootstrap JS Bundle with Popper -->
