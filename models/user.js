@@ -9,7 +9,7 @@ export class User {
    * @param {Object} data - Raw user data
    */
   constructor(data = {}) {
-    this.id = data.id || null;
+    this.idNumber = data.idNumber || '';
     this.name = data.name || '';
     this.email = data.email || '';
     this.address = data.address || '';
@@ -22,7 +22,7 @@ export class User {
    */
   toJSON() {
     const json = {
-      id: this.id,
+      idNumber: this.idNumber,
       name: this.name,
       email: this.email,
       address: this.address
@@ -43,7 +43,7 @@ export class User {
    */
   static fromAPI(data) {
     return new User({
-      id: data.id,
+      idNumber: data.idNumber || '',
       name: data.name || '',
       email: data.email || '',
       address: data.address || ''

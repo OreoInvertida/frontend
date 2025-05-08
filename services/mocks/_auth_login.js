@@ -5,7 +5,7 @@
 export default function(options) {
   // Parse request data
   const requestData = JSON.parse(options.body || '{}');
-  const { 'document-number': idNumber, password } = requestData;
+  const { idNumber, password } = requestData;
 
   // Mock successful login
   if (idNumber === '123456789' && password) {
@@ -13,7 +13,6 @@ export default function(options) {
       success: true,
       token: 'mock-jwt-token-for-testing-purposes-only',
       user: {
-        id: 'user-123',
         name: 'Usuario Prueba',
         firstName: 'Usuario',
         lastName: 'Prueba',

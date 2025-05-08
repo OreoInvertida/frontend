@@ -8,8 +8,8 @@ import {
 } from '../utilities/form-utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('signup-form');
-    const button = document.getElementById('signup-button');
+    const form = document.getElementById('register-form');
+    const button = document.getElementById('register-button');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirm-password');
     const emailInput = document.getElementById('email');
@@ -154,16 +154,16 @@ async function registerUser(userData) {
  */
 function showSuccessMessage(message) {
     // Check if success alert already exists
-    let successAlert = document.querySelector('.signup-success');
+    let successAlert = document.querySelector('.register-success');
     
     // If success alert doesn't exist, create it
     if (!successAlert) {
         successAlert = document.createElement('div');
-        successAlert.className = 'alert alert-success signup-success';
+        successAlert.className = 'alert alert-success register-success';
         successAlert.role = 'alert';
         
         // Get form and insert success alert before it
-        const form = document.getElementById('signup-form');
+        const form = document.getElementById('register-form');
         form.parentElement.insertBefore(successAlert, form);
     }
     
@@ -177,16 +177,16 @@ function showSuccessMessage(message) {
  */
 function showErrorMessage(message) {
     // Check if error alert already exists
-    let errorAlert = document.querySelector('.signup-error');
+    let errorAlert = document.querySelector('.register-error');
     
     // If error alert doesn't exist, create it
     if (!errorAlert) {
         errorAlert = document.createElement('div');
-        errorAlert.className = 'alert alert-danger signup-error';
+        errorAlert.className = 'alert alert-danger register-error';
         errorAlert.role = 'alert';
         
         // Get form and insert error alert at the top
-        const form = document.getElementById('signup-form');
+        const form = document.getElementById('register-form');
         form.insertAdjacentElement('afterbegin', errorAlert);
     }
     

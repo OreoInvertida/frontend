@@ -46,22 +46,22 @@ body {
 }
 
 /* Custom button styling */
-.login-button, .signup-button {
+.login-button, .register-button {
     background-color: var(--blue) !important;
     border-color: var(--blue) !important;
 }
 
-.login-button:hover, .signup-button:hover:not(:disabled) {
+.login-button:hover, .register-button:hover:not(:disabled) {
     background-color: var(--berkeley-blue) !important;
     border-color: var(--berkeley-blue) !important;
 }
 
-/* Signup page */
-.signup-body {
+/* Register page */
+.register-body {
     background-color: var(--blue);
 }
 
-.signup-container {
+.register-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -69,7 +69,7 @@ body {
     padding: 2rem 0;
 }
 
-.signup-form {
+.register-form {
     background: var(--white);
     padding: 30px;
     border-radius: 8px;
@@ -94,18 +94,18 @@ body {
     margin-bottom: 0;
 }
 
-.signup-button:disabled {
+.register-button:disabled {
     background-color: #ccc !important;
     border-color: #ccc !important;
 }
 
 /* Links */
-.login-form a, .signup-form a {
+.login-form a, .register-form a {
     color: var(--blue);
     text-decoration: none;
 }
 
-.login-form a:hover, .signup-form a:hover {
+.login-form a:hover, .register-form a:hover {
     text-decoration: underline;
 }
 
@@ -162,7 +162,7 @@ body {
 
 /* Media queries for responsive design */
 @media (max-width: 992px) {
-    .signup-form {
+    .register-form {
         width: 70%;
     }
 }
@@ -180,7 +180,7 @@ body {
         text-align: center;
     }
     
-    .signup-form {
+    .register-form {
         width: 90%;
         padding: 15px;
     }

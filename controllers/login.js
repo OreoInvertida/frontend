@@ -88,22 +88,12 @@ function setupLoginForm() {
  */
 async function loginUser(credentials) {
     try {
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(credentials)
-        });
+        // Import the ApiService to use the mocks properly
+        const { default: ApiService } = await import('../services/api-service.js');
         
-        // Check if response is OK
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al iniciar sesión');
-        }
-        
-        // Parse and return the response data
-        return await response.json();
+        // Use ApiService instead of direct fetch
+        const response = await ApiService.post('/auth/login', credentials);
+        return response;
     } catch (error) {
         console.error('Login request failed:', error);
         throw error;
