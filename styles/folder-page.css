@@ -42,6 +42,8 @@ body {
     background-color:var(--white);
     border: 2px solidvar(--white);
     margin-right: 20px;
+    font-size: 2rem;
+    color: white;
 }
 
 /* Main container layout - occupies 7/8 of the screen height */
@@ -102,9 +104,18 @@ body {
     padding: 0px;
 }
 
+.icon-container i {
+    font-size: 1.5rem;
+    color: white;
+}
+
 .nav-icons li.active .icon-container {
     background-color: var(--selected-blue);
     border-radius: 15%;
+}
+
+.nav-icons li.active .icon-container i {
+    color: white;
 }
 
 .icon-container img {
@@ -161,6 +172,9 @@ body {
     height: auto;
     margin-bottom: 10px;
     object-fit: contain;
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: var(--blue);
 }
 
 .document-item p {
@@ -205,6 +219,11 @@ body {
     width: auto;
     height: auto;
     object-fit: contain;
+}
+
+.tool-button i {
+    font-size: 1.2rem;
+    color: var(--blue);
 }
 
 /* Responsive adjustments */
