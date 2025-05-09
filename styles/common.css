@@ -44,7 +44,58 @@ body {
     border: 2px solidvar(--white);
     margin-right: 20px;
     font-size: 2rem;
-    color: white;
+    color: var(--black);
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.user-avatar:hover {
+    opacity: 0.8;
+}
+
+/* User profile icon and dropdown styles */
+.user-profile {
+    position: relative;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    min-width: 200px;
+    padding: 0.5rem 0;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: var(--light-gray);
+}
+
+.dropdown-item i {
+    margin-right: 8px;
+}
+
+/* Change password modal styles */
+#changePasswordModal .modal-content {
+    border-radius: 10px;
+    border: none;
+}
+
+#changePasswordModal .modal-header {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 1.2rem 1.5rem;
+}
+
+#changePasswordModal .modal-footer {
+    border-top: 1px solid #f0f0f0;
+    padding: 1rem 1.5rem;
 }
 
 /* Main container layout - occupies 7/8 of the screen height */
