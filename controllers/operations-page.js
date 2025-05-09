@@ -125,6 +125,7 @@ function loadRequestsData() {
     const requests = [
         { id: 'REQ001', type: 'Solicitud', document: 'Cédula', entityName: 'Registraduría Nacional', date: '2025-05-01', status: 'pending' },
         { id: 'REQ002', type: 'Recepción', document: 'Pasaporte', entityName: 'Cancillería', date: '2025-05-03', status: 'completed' },
+        { id: 'REQ005', type: 'Recepción', document: 'Historia clínica', entityName: 'SURA EPS', date: '2021-12-09', status: 'completed' },
         { id: 'REQ003', type: 'Solicitud', document: 'Licencia', entityName: 'Ministerio de Transporte', date: '2025-05-05', status: 'failed' },
         { id: 'REQ004', type: 'Solicitud', document: 'Certificado', entityName: 'Cámara de Comercio', date: '2025-05-07', status: 'pending' }
     ];
@@ -306,11 +307,13 @@ function addRequestActionListeners() {
     const requestRows = document.querySelectorAll('#requestsTableBody tr');
     requestRows.forEach(row => {
         row.addEventListener('click', function() {
+            // Only handle selection, do not trigger any delete functionality
             requestRows.forEach(r => r.classList.remove('selected'));
             this.classList.add('selected');
             
-            // Show selection indication message
-            showSelectionMessage(this.dataset.id);
+            // Just highlight the row without triggering any further actions
+            const requestId = this.dataset.id;
+            highlightSelectedRow(requestId);
         });
     });
 }
@@ -322,7 +325,7 @@ function enableSwipeToDelete() {
     const rows = document.querySelectorAll('.request-row');
     
     rows.forEach(row => {
-        // Only add swipe to rows with pending or failed status (those with swipe-actions)
+        // Only add swipe to rows with pending status (those with swipe-actions)
         if (!row.querySelector('.swipe-actions')) return;
         
         let startX = 0;
@@ -726,7 +729,7 @@ function cancelSelectedRequest() {
     const selectedRequest = document.querySelector('#requestsTableBody tr.selected');
     
     if (!selectedRequest) {
-        alert('Por favor selecciona una solicitud para cancelar');
+        alert('Por favor selecciona una solicitud para eliminar');
         return;
     }
     
@@ -739,7 +742,7 @@ function cancelSelectedRequest() {
  * @param {string} requestId - ID of the request to delete
  */
 function confirmDeleteRequest(requestId) {
-    if (confirm('¿Estás seguro de que quieres cancelar esta solicitud?')) {
+    if (confirm('¿Estás seguro de que quieres eliminar esta solicitud?')) {
         // In a real app, this would call your API to delete the request
         console.log('Deleting request:', requestId);
         
@@ -774,17 +777,17 @@ function retryFailedRequest(requestId) {
     // In a real app, this would call your API to retry the request
     console.log('Retrying failed request:', requestId);
     
-    // Show confirmation message
-    if (confirm('¿Deseas reintentar esta solicitud fallida?')) {
-        // In a real app, this would call your API to retry the request
-        
-        // Simulate changing status to pending (in a real app, this would be handled by the API)
-        // For demonstration, we'll just reload the requests data
+    // Show confirmation message with the same pattern as download function
+    alert('Reintentando solicitud fallida...');
+    
+    // Simulate API call success
+    setTimeout(() => {
+        // In a real app, the API would handle changing the status to pending
         alert('Solicitud enviada nuevamente. Estado cambiado a "Pendiente"');
         
         // Reload requests data (would be triggered by API response in real app)
         loadRequestsData();
-    }
+    }, 1000);
 }
 
 /**
@@ -902,4 +905,21 @@ function showSelectionMessage(requestId) {
     
     // If you want to display this message in the UI, you could add a status area
     // For now, we'll just highlight the selected row clearly with CSS
+}
+
+/**
+ * Highlight the selected row without triggering any modal or deletion
+ * @param {string} requestId - ID of the selected request
+ */
+function highlightSelectedRow(requestId) {
+    // Get the selected row
+    const row = document.querySelector(`#requestsTableBody tr[data-id="${requestId}"]`);
+    if (!row) return;
+    
+    // Add visual indication of selection (the CSS class 'selected' is already applied in the click handler)
+    
+    // Optionally log selection for debugging
+    const document = row.querySelector('td:nth-child(3)').textContent;
+    const status = row.querySelector('td:nth-child(6) .status-badge').textContent;
+    console.log(`Row selected: ${document} (${requestId}) - Status: ${status}`);
 }

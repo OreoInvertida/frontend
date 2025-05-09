@@ -8,67 +8,31 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.12.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="../styles/folder-page.css">
+    <!-- Common styles first, then page-specific styles -->
+    <link rel="stylesheet" href="../styles/common.css">
     <link rel="stylesheet" href="../styles/premium-page.css">
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="container-fluid d-flex justify-content-end align-items-center">
-            <div class="user-profile">
-                <i class="bi bi-person-circle user-avatar"></i>
-            </div>
-        </div>
+    <header class="header" id="header-container">
+        <!-- Header content will be injected by layout-utils.js -->
     </header>
 
     <div class="main-container">
         <!-- Left Navigation Menu -->
-        <nav class="side-nav">
-            <ul class="nav-icons">
-                <li>
-                    <a href="folder-page.html">
-                        <div class="icon-container">
-                            <i class="bi bi-folder"></i>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="operations-page.html">
-                        <div class="icon-container">
-                            <i class="bi bi-gear"></i>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="operators-page.html">
-                        <div class="icon-container">
-                            <i class="bi bi-building"></i>
-                        </div>
-                    </a>
-                </li>
-                <li class="active">
-                    <a href="premium-page.html">
-                        <div class="icon-container">
-                            <i class="bi bi-file-earmark-text"></i>
-                        </div>
-                    </a>
-                </li>
-            </ul>
+        <nav class="side-nav" id="nav-container">
+            <!-- Navigation content will be injected by layout-utils.js -->
         </nav>
 
         <!-- Main Content Area -->
         <main class="content-area">
             <div class="premium-container">
                 <div class="construction-box">
-                    <div class="construction-icon">
-                        <i class="bi bi-gear-wide-connected"></i>
-                    </div>
-                    <h2>Funcionalidades Premium</h2>
-                    <p class="lead">Estamos trabajando en nuevas funcionalidades premium para usted.</p>
-                    <div class="coming-soon">
-                        <span>Próximamente</span>
-                    </div>
-                    <p class="details">Nuestro equipo está desarrollando servicios avanzados que mejorarán su experiencia con la carpeta ciudadana. ¡Vuelva pronto para descubrir todas las novedades!</p>
+                    <i class="bi bi-gear-wide-connected construction-icon"></i>
+                    <div class="coming-soon">Próximamente</div>
+                    <h2>Características Premium en Desarrollo</h2>
+                    <p class="lead">Estamos trabajando para ofrecerte funcionalidades avanzadas en tu carpeta ciudadana.</p>
+                    <p class="details">Las características premium incluirán almacenamiento adicional, validación avanzada de documentos, notificaciones en tiempo real y mucho más.</p>
                 </div>
             </div>
         </main>
@@ -76,5 +40,12 @@
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Common layout utilities -->
+    <script src="../utilities/layout-utils.js"></script>
+    <!-- No specific controller yet for premium page, but we'll initialize the common layout -->
+    <script>
+        // Initialize the common layout with the active page
+        initCommonLayout('premium');
+    </script>
 </body>
 </html>

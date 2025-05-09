@@ -166,6 +166,13 @@ function setupPasswordValidation(inputId) {
         requirementsContainer.style.display = 'block';
     });
     
+    // Hide requirements when focus moves to another input
+    document.addEventListener('focusin', function(event) {
+        if (event.target !== passwordInput && event.target.tagName === 'INPUT') {
+            requirementsContainer.style.display = 'none';
+        }
+    });
+    
     // Optional: Hide requirements when clicking outside
     document.addEventListener('click', function(event) {
         if (!passwordInput.contains(event.target) && 

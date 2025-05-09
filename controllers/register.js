@@ -7,6 +7,8 @@ import {
     isValidPassword 
 } from '../utilities/form-utils.js';
 
+import AuthService from '../services/auth-service.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('register-form');
     const button = document.getElementById('register-button');
@@ -14,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmPasswordInput = document.getElementById('confirm-password');
     const emailInput = document.getElementById('email');
     const documentNumberInput = document.getElementById('document-number');
+    const fileInput = document.getElementById('identity-document');
+    const fileSizeFeedback = document.getElementById('file-size-feedback');
 
     // Setup password toggle functionality using shared utility
     setupPasswordToggles();
@@ -29,6 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Setup email validation
     setupEmailValidation('email');
+    
+    // Setup file size validation (1MB limit)
+    setupFileSizeValidation(fileInput, fileSizeFeedback, 1024 * 1024);
 
     // Form validation
     form.addEventListener('input', () => {
@@ -36,12 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const isFormValid = form.checkValidity();
         const isPasswordValid = passwordInput.value ? isValidPassword(passwordInput.value) : false;
         const doPasswordsMatch = confirmPasswordInput.value === passwordInput.value && confirmPasswordInput.value !== '';
-        
-        // Check if email is valid (using the HTML5 validation API)
         const isEmailValid = emailInput.validity.valid;
         
+        // Check if file is valid (if selected)
+        const isFileValid = !fileInput.dataset.sizeError;
+        
         // Enable button only if all conditions are met
-        button.disabled = !(isFormValid && isPasswordValid && doPasswordsMatch && isEmailValid);
+        button.disabled = !(isFormValid && isPasswordValid && doPasswordsMatch && isEmailValid && isFileValid);
     });
 
     form.addEventListener('submit', (event) => {
@@ -126,22 +134,49 @@ function encryptSensitiveData(userData) {
  */
 async function registerUser(userData) {
     try {
-        const response = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userData)
-        });
+        // Format the data as required by the API
+        const formData = new FormData();
         
-        // Check if response is OK
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al registrar usuario');
+        // Add required fields with the expected format
+        formData.append('id_number', userData['document-number']);
+        
+        // Combine name fields
+        const fullName = [
+            userData['first-name'] || '',
+            userData['second-name'] || '',
+            userData['first-lastname'] || '',
+            userData['second-lastname'] || ''
+        ].filter(part => part.trim()).join(' ');
+        formData.append('name', fullName);
+        
+        formData.append('email', userData.email);
+        
+        // Combine address fields
+        const fullAddress = [
+            userData.address || '',
+            userData.city || '',
+            userData.department || ''
+        ].filter(part => part.trim()).join(', ');
+        formData.append('address', fullAddress);
+        
+        formData.append('password', userData.password);
+        
+        // Get the file from the form
+        const fileInput = document.getElementById('identity-document');
+        const file = fileInput.files[0];
+        
+        // Check file size (limit to 1MB)
+        if (file && file.size > 1024 * 1024) {
+            throw new Error('El documento de identidad debe tener un tamaño máximo de 1MB');
         }
         
-        // Parse and return the response data
-        return await response.json();
+        // Add file to form data if it exists
+        if (file) {
+            formData.append('id_document_file', file);
+        }
+        
+        // Use AuthService to send the request (it will use our updated ApiService)
+        return await AuthService.register(formData);
     } catch (error) {
         console.error('Registration request failed:', error);
         throw error;
@@ -153,22 +188,12 @@ async function registerUser(userData) {
  * @param {string} message - Success message to display
  */
 function showSuccessMessage(message) {
-    // Check if success alert already exists
-    let successAlert = document.querySelector('.register-success');
+    const button = document.getElementById('register-button');
     
-    // If success alert doesn't exist, create it
-    if (!successAlert) {
-        successAlert = document.createElement('div');
-        successAlert.className = 'alert alert-success register-success';
-        successAlert.role = 'alert';
-        
-        // Get form and insert success alert before it
-        const form = document.getElementById('register-form');
-        form.parentElement.insertBefore(successAlert, form);
-    }
-    
-    // Update success message
-    successAlert.textContent = message;
+    // Change button appearance to success state
+    button.classList.remove('btn-primary');
+    button.classList.add('btn-success');
+    button.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>' + message;
 }
 
 /**
@@ -195,4 +220,38 @@ function showErrorMessage(message) {
     
     // Scroll to error message
     errorAlert.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/**
+ * Set up file size validation
+ * @param {HTMLElement} fileInput - File input element
+ * @param {HTMLElement} feedbackElement - Element to show validation feedback
+ * @param {number} maxSize - Maximum file size in bytes
+ */
+function setupFileSizeValidation(fileInput, feedbackElement, maxSize) {
+    if (!fileInput || !feedbackElement) return;
+    
+    fileInput.addEventListener('change', function() {
+        // Reset previous validation
+        fileInput.classList.remove('is-invalid');
+        delete fileInput.dataset.sizeError;
+        
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            
+            // Check if file size exceeds the maximum
+            if (file.size > maxSize) {
+                // Show error
+                fileInput.classList.add('is-invalid');
+                feedbackElement.textContent = `El archivo excede el tamaño máximo de ${Math.round(maxSize/1024/1024)}MB (tamaño actual: ${(file.size/1024/1024).toFixed(2)}MB)`;
+                fileInput.dataset.sizeError = 'true';
+            } else {
+                // File size is valid
+                fileInput.classList.add('is-valid');
+            }
+        }
+        
+        // Trigger form validation check
+        fileInput.dispatchEvent(new Event('input', { bubbles: true }));
+    });
 }

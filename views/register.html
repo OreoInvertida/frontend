@@ -75,8 +75,11 @@
             </div>
 
             <div class="mb-3">
-                <label for="identity-document" class="form-label">Adjunta tu documento de identidad</label>
+                <label for="identity-document" class="form-label">Adjunta tu documento de identidad (máx. 1MB)</label>
                 <input type="file" class="form-control" id="identity-document" name="identity-document" accept=".jpg,.png,.pdf" required>
+                <div class="invalid-feedback" id="file-size-feedback">
+                    El documento debe tener un tamaño máximo de 1MB.
+                </div>
             </div>
 
             <div class="mb-3">

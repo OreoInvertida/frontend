@@ -132,15 +132,21 @@ export const ApiService = {
   /**
    * POST request
    * @param {string} endpoint - API endpoint
-   * @param {Object} data - Data to send
+   * @param {Object|FormData} data - Data to send (object or FormData instance)
    * @param {Object} options - Additional request options
    * @returns {Promise} - Promise resolving to the API response
    */
   async post(endpoint, data, options = {}) {
+    const isFormData = data instanceof FormData;
+    const headers = isFormData 
+      ? {} // Don't set Content-Type for FormData, let the browser set it with boundary
+      : { 'Content-Type': 'application/json' };
+    
     return apiRequest(endpoint, {
       ...options,
+      headers: { ...headers, ...options.headers },
       method: 'POST',
-      body: JSON.stringify(data)
+      body: isFormData ? data : JSON.stringify(data)
     });
   },
   
