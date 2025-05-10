@@ -98,8 +98,14 @@ async function loginUser(credentials) {
         // Import the ApiService to use the mocks properly
         const { default: ApiService } = await import('../services/api-service.js');
         
-        // Use ApiService instead of direct fetch
-        const response = await ApiService.post('/auth/login', credentials);
+        // Ensure credentials have the correct format
+        const loginData = {
+            "email": credentials.email,
+            "password": credentials.password
+        };
+        
+        // Use ApiService with POST method
+        const response = await ApiService.post('/auth/login', loginData);
         return response;
     } catch (error) {
         console.error('Login request failed:', error);
