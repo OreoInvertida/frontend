@@ -137,29 +137,26 @@ async function registerUser(userData) {
         // Format the data as required by the API
         const formData = new FormData();
         
-        // Add required fields with the expected format
-        formData.append('id_number', userData['document-number']);
+        // Create a data object according to the expected API format
+        const dataObject = {
+            user_id: userData['document-number'],
+            name: [
+                userData['first-name'] || '',
+                userData['second-name'] || '',
+                userData['first-lastname'] || '',
+                userData['second-lastname'] || ''
+            ].filter(part => part.trim()).join(' '),
+            email: userData.email,
+            address: [
+                userData.address || '',
+                userData.city || '',
+                userData.department || ''
+            ].filter(part => part.trim()).join(', '),
+            password: userData.password
+        };
         
-        // Combine name fields
-        const fullName = [
-            userData['first-name'] || '',
-            userData['second-name'] || '',
-            userData['first-lastname'] || '',
-            userData['second-lastname'] || ''
-        ].filter(part => part.trim()).join(' ');
-        formData.append('name', fullName);
-        
-        formData.append('email', userData.email);
-        
-        // Combine address fields
-        const fullAddress = [
-            userData.address || '',
-            userData.city || '',
-            userData.department || ''
-        ].filter(part => part.trim()).join(', ');
-        formData.append('address', fullAddress);
-        
-        formData.append('password', userData.password);
+        // Append the data object as JSON
+        formData.append('data', JSON.stringify(dataObject));
         
         // Get the file from the form
         const fileInput = document.getElementById('identity-document');
@@ -172,10 +169,12 @@ async function registerUser(userData) {
         
         // Add file to form data if it exists
         if (file) {
-            formData.append('id_document_file', file);
+            formData.append('document', file);
+        } else {
+            throw new Error('El documento de identidad es requerido');
         }
         
-        // Use AuthService to send the request (it will use our updated ApiService)
+        // Use AuthService to send the request
         return await AuthService.register(formData);
     } catch (error) {
         console.error('Registration request failed:', error);
