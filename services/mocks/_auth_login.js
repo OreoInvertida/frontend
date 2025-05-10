@@ -5,10 +5,10 @@
 export default function(options) {
   // Parse request data
   const requestData = JSON.parse(options.body || '{}');
-  const { idNumber, password } = requestData;
+  const { email, password } = requestData;
 
   // Mock successful login
-  if (idNumber === '123456789' && password) {
+  if (email === 'usuario@example.com' && password) {
     return {
       success: true,
       token: 'mock-jwt-token-for-testing-purposes-only',
@@ -16,7 +16,6 @@ export default function(options) {
         name: 'Usuario Prueba',
         firstName: 'Usuario',
         lastName: 'Prueba',
-        idNumber: '123456789',
         email: 'usuario@example.com'
       }
     };

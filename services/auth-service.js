@@ -7,7 +7,7 @@ import ApiService from './api-service.js';
 export const AuthService = {
   /**
    * Login with credentials
-   * @param {Object} credentials - User credentials (idNumber and password)
+   * @param {Object} credentials - User credentials (email and password)
    * @returns {Promise} - Promise resolving to login response
    */
   async login(credentials) {

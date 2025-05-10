@@ -35,7 +35,7 @@ function setupLoginForm() {
     const form = document.querySelector('.login-form');
     const passwordInput = document.getElementById('password');
     const submitButton = document.querySelector('.login-button');
-    const idNumberInput = document.getElementById('id-number');
+    const emailInput = document.getElementById('email');
     
     if (form) {
         form.addEventListener('submit', function(event) {
@@ -47,7 +47,7 @@ function setupLoginForm() {
             
             // Collect form data
             const credentials = {
-                idNumber: idNumberInput.value,
+                email: emailInput.value,
                 password: passwordInput.value
             };
             
@@ -83,7 +83,7 @@ function setupLoginForm() {
 
 /**
  * Send login request to the server
- * @param {Object} credentials - User credentials (idNumber and password)
+ * @param {Object} credentials - User credentials (email and password)
  * @returns {Promise} - Promise that resolves with the login response or rejects with error
  */
 async function loginUser(credentials) {
