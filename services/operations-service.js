@@ -4,6 +4,7 @@
  */
 
 import ApiService from './api-service.js';
+import { OPERATION_ENDPOINTS, API_BASE_URL } from '../utilities/constants.js';
 
 export const OperationsService = {
   /**
@@ -11,7 +12,8 @@ export const OperationsService = {
    * @returns {Promise} - Promise resolving to incoming requests data
    */
   async getIncomingRequests() {
-    return ApiService.get('/operations/requests');
+    const path = OPERATION_ENDPOINTS.GET_INCOMING.replace(API_BASE_URL, '');
+    return ApiService.get(path);
   },
   
   /**
@@ -19,7 +21,8 @@ export const OperationsService = {
    * @returns {Promise} - Promise resolving to outgoing operations data
    */
   async getOutgoingOperations() {
-    return ApiService.get('/operations');
+    const path = OPERATION_ENDPOINTS.GET_OUTGOING.replace(API_BASE_URL, '');
+    return ApiService.get(path);
   },
   
   /**
@@ -28,7 +31,8 @@ export const OperationsService = {
    * @returns {Promise} - Promise resolving to operation details
    */
   async getOperationDetails(operationId) {
-    return ApiService.get(`/operations/${operationId}`);
+    const path = `${OPERATION_ENDPOINTS.GET_DETAILS.replace(API_BASE_URL, '')}/${operationId}`;
+    return ApiService.get(path);
   },
   
   /**
@@ -37,7 +41,8 @@ export const OperationsService = {
    * @returns {Promise} - Promise resolving to request submission result
    */
   async submitDocumentRequest(requestData) {
-    return ApiService.post('/operations/requests', requestData);
+    const path = OPERATION_ENDPOINTS.GET_INCOMING.replace(API_BASE_URL, '');
+    return ApiService.post(path, requestData);
   },
   
   /**
@@ -46,7 +51,8 @@ export const OperationsService = {
    * @returns {Promise} - Promise resolving to receipt confirmation result
    */
   async confirmDocumentReceipt(receiptData) {
-    return ApiService.post('/operations/receive', receiptData);
+    const path = OPERATION_ENDPOINTS.RECEIVE.replace(API_BASE_URL, '');
+    return ApiService.post(path, receiptData);
   },
   
   /**
@@ -55,7 +61,8 @@ export const OperationsService = {
    * @returns {Promise} - Promise resolving to retry result
    */
   async retryOperation(operationId) {
-    return ApiService.post(`/operations/${operationId}/retry`, {});
+    const path = `${OPERATION_ENDPOINTS.RETRY_OPERATION.replace(API_BASE_URL, '')}/${operationId}/retry`;
+    return ApiService.post(path, {});
   },
   
   /**
@@ -64,7 +71,8 @@ export const OperationsService = {
    * @returns {Promise} - Promise resolving to retry result
    */
   async retryRequest(requestId) {
-    return ApiService.post(`/operations/requests/${requestId}/retry`, {});
+    const path = `${OPERATION_ENDPOINTS.RETRY_REQUEST.replace(API_BASE_URL, '')}/${requestId}/retry`;
+    return ApiService.post(path, {});
   },
   
   /**
@@ -73,7 +81,8 @@ export const OperationsService = {
    * @returns {Promise} - Promise resolving to deletion result
    */
   async deleteOperation(operationId) {
-    return ApiService.delete(`/operations/${operationId}`);
+    const path = `${OPERATION_ENDPOINTS.GET_OUTGOING.replace(API_BASE_URL, '')}/${operationId}`;
+    return ApiService.delete(path);
   },
   
   /**
@@ -82,7 +91,8 @@ export const OperationsService = {
    * @returns {Promise} - Promise resolving to deletion result
    */
   async deleteRequest(requestId) {
-    return ApiService.delete(`/operations/requests/${requestId}`);
+    const path = `${OPERATION_ENDPOINTS.GET_INCOMING.replace(API_BASE_URL, '')}/${requestId}`;
+    return ApiService.delete(path);
   },
   
   /**
@@ -91,7 +101,8 @@ export const OperationsService = {
    * @returns {Promise} - Promise resolving to entities search results
    */
   async searchEntities(query) {
-    return ApiService.get(`/entities/search?q=${encodeURIComponent(query)}`);
+    const path = `${OPERATION_ENDPOINTS.SEARCH_ENTITIES.replace(API_BASE_URL, '')}?q=${encodeURIComponent(query)}`;
+    return ApiService.get(path);
   }
 };
 

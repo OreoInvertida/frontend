@@ -3,10 +3,12 @@
  * This service can be configured to use mock data or real API endpoints
  */
 
+import { API_BASE_URL } from '../utilities/constants.js';
+
 // Configuration
 const API_CONFIG = {
   // Base URL for API requests
-  baseUrl: '/api',
+  baseUrl: API_BASE_URL,
   
   // Whether to use mock data instead of real API calls
   useMocks: true,
@@ -19,6 +21,9 @@ const API_CONFIG = {
     'Content-Type': 'application/json'
   }
 };
+
+// Export the configuration for external access
+export { API_CONFIG };
 
 /**
  * Make an API request

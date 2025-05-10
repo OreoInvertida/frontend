@@ -3,6 +3,7 @@
  */
 
 import ApiService from './api-service.js';
+import { AUTH_ENDPOINTS, API_BASE_URL } from '../utilities/constants.js';
 
 export const AuthService = {
   /**
@@ -11,7 +12,9 @@ export const AuthService = {
    * @returns {Promise} - Promise resolving to login response
    */
   async login(credentials) {
-    return ApiService.post('/auth/login', credentials);
+    // Extract the path from the full URL
+    const loginPath = AUTH_ENDPOINTS.LOGIN.replace(API_BASE_URL, '');
+    return ApiService.post(loginPath, credentials);
   },
   
   /**
@@ -20,7 +23,9 @@ export const AuthService = {
    * @returns {Promise} - Promise resolving to registration response
    */
   async register(userData) {
-    return ApiService.post('/auth/register', userData);
+    // Extract the path from the full URL
+    const registerPath = AUTH_ENDPOINTS.REGISTER.replace(API_BASE_URL, '');
+    return ApiService.post(registerPath, userData);
   },
   
   /**
@@ -34,12 +39,23 @@ export const AuthService = {
     
     // Call logout endpoint (useful for server-side session cleanup)
     try {
-      await ApiService.post('/auth/logout', {});
+      const logoutPath = AUTH_ENDPOINTS.LOGOUT.replace(API_BASE_URL, '');
+      await ApiService.post(logoutPath, {});
     } catch (error) {
       console.log('Error during logout, but tokens were cleared', error);
     }
     
     return { success: true };
+  },
+  
+  /**
+   * Change user password
+   * @param {Object} passwordData - Object containing currentPassword and newPassword
+   * @returns {Promise} - Promise resolving to change password response
+   */
+  async changePassword(passwordData) {
+    const changePasswordPath = AUTH_ENDPOINTS.CHANGE_PASSWORD.replace(API_BASE_URL, '');
+    return ApiService.post(changePasswordPath, passwordData);
   },
   
   /**
