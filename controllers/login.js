@@ -53,12 +53,12 @@ function setupLoginForm() {
             
             // Send login request to the server
             loginUser(credentials)
-                .then(response => {
+                .then(async response => {
                     // Handle successful login
                     console.log('Login successful', response);
                     
                     // Import AuthService to store the tokens
-                    import('../services/auth-service.js').then(({ default: AuthService }) => {
+                    import('../services/auth-service.js').then(async ({ default: AuthService }) => {
                         // Store authentication tokens using the new format
                         if (response.access_token) {
                             // New token format
@@ -66,6 +66,18 @@ function setupLoginForm() {
                         } else if (response.token) {
                             // Legacy token format (backward compatibility)
                             localStorage.setItem('auth_token', response.token);
+                            
+                            // Process legacy token format to extract user ID
+                            try {
+                                const { default: JwtUtils } = await import('../utilities/jwt-utils.js');
+                                const userData = JwtUtils.extractUserData(response.token);
+                                if (userData) {
+                                    localStorage.setItem('user_id', userData);
+                                    console.log('User ID extracted from legacy token:', userData);
+                                }
+                            } catch (e) {
+                                console.error('Error decoding legacy token:', e);
+                            }
                         }
                         
                         // Redirect to folder page

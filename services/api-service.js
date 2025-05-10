@@ -19,7 +19,8 @@ const API_CONFIG = {
   // Default headers for all requests
   defaultHeaders: {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*'
+    // Properly identify the origin of the request
+    'Origin': window.location.origin
   }
 };
 
@@ -64,6 +65,9 @@ async function apiRequest(endpoint, options = {}, mockOverride = null) {
   const requestOptions = {
     method: options.method || 'GET',
     headers: { ...API_CONFIG.defaultHeaders, ...options.headers },
+    // Add CORS mode and credentials
+    mode: 'cors',
+    credentials: 'include',
     ...options
   };
   

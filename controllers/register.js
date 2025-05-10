@@ -73,18 +73,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Handle successful registration
                 console.log('Registration successful', response);
                 
-                // Store auth token if provided by the API
-                if (response.token) {
-                    localStorage.setItem('auth_token', response.token);
-                }
-                
-                // Show success message
-                showSuccessMessage('¡Cuenta registrada exitosamente! Accediendo a tu carpeta...');
-                
-                // Redirect directly to folder page after a short delay
-                setTimeout(() => {
-                    window.location.href = 'folder-page.html';
-                }, 2000);
+                // Import JWT utils for token decoding
+                import('../utilities/jwt-utils.js').then(({ default: JwtUtils }) => {
+                    // Store auth token if provided by the API
+                    if (response.token) {
+                        localStorage.setItem('auth_token', response.token);
+                        
+                        // Decode token and store user ID
+                        try {
+                            const userData = JwtUtils.extractUserData(response.token);
+                            if (userData) {
+                                localStorage.setItem('user_id', userData);
+                                console.log('User ID extracted from registration token:', userData);
+                            }
+                        } catch (e) {
+                            console.error('Error decoding registration token:', e);
+                        }
+                    }
+                    
+                    // Show success message
+                    showSuccessMessage('¡Cuenta registrada exitosamente! Accediendo a tu carpeta...');
+                    
+                    // Redirect directly to folder page after a short delay
+                    setTimeout(() => {
+                        window.location.href = 'folder-page.html';
+                    }, 2000);
+                });
             })
             .catch(error => {
                 // Handle registration error

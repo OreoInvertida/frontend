@@ -26,7 +26,15 @@ async function loadDocumentsFromApi() {
     try {
         // Import necessary services
         const { default: FolderService } = await import('../services/folder-service.js');
-        const { default: ApiService } = await import('../services/api-service.js');
+        const { default: AuthService } = await import('../services/auth-service.js');
+        
+        // Check if user is authenticated and has a valid ID
+        if (!AuthService.isAuthenticated()) {
+            console.error('User not authenticated');
+            alert('Sesión no válida. Por favor inicie sesión nuevamente.');
+            window.location.href = 'login.html';
+            return;
+        }
         
         // Get files from API
         const response = await FolderService.getFiles();
@@ -41,7 +49,13 @@ async function loadDocumentsFromApi() {
         }
     } catch (error) {
         console.error('Error loading documents:', error);
-        alert('Error al cargar documentos.');
+        // If the error is related to authentication, redirect to login
+        if (error.message === 'User authentication error') {
+            alert('Sesión expirada o inválida. Por favor inicie sesión nuevamente.');
+            window.location.href = 'login.html';
+        } else {
+            alert('Error al cargar documentos: ' + (error.message || 'Error desconocido'));
+        }
     }
 }
 

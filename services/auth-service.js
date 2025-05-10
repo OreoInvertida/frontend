@@ -4,6 +4,7 @@
 
 import ApiService from './api-service.js';
 import { AUTH_ENDPOINTS, API_BASE_URL } from '../utilities/constants.js';
+import JwtUtils from '../utilities/jwt-utils.js';
 
 export const AuthService = {
   /**
@@ -37,8 +38,7 @@ export const AuthService = {
    */
   async logout() {
     // Clear tokens from localStorage
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('token_type');
+    this.clearAuthData();
     
     // Call logout endpoint (useful for server-side session cleanup)
     try {
@@ -86,17 +86,46 @@ export const AuthService = {
   },
   
   /**
-   * Store authentication tokens
+   * Store authentication tokens and decode user data from token
    * @param {Object} authData - Authentication data containing access_token and token_type
    */
   storeAuthTokens(authData) {
     if (authData.access_token) {
       localStorage.setItem('auth_token', authData.access_token);
+      
+      // Decode token and store user ID
+      try {
+        const userData = JwtUtils.extractUserData(authData.access_token);
+        if (userData) {
+          localStorage.setItem('user_id', userData);
+          console.log('User ID extracted and stored:', userData);
+        }
+      } catch (error) {
+        console.error('Error decoding token:', error);
+      }
     }
     
     if (authData.token_type) {
       localStorage.setItem('token_type', authData.token_type);
     }
+  },
+  
+  /**
+   * Get the current user ID from localStorage
+   * @returns {string|null} - The user ID or null if not available
+   */
+  getUserId() {
+    console.log('Getting user_id from localStorage:', localStorage.getItem('user_id'));
+    return localStorage.getItem('user_id');
+  },
+  
+  /**
+   * Clear all authentication data on logout
+   */
+  clearAuthData() {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('token_type');
+    localStorage.removeItem('user_id');
   }
 };
 

@@ -4,6 +4,8 @@
  */
 
 import ApiService from './api-service.js';
+import { default as AuthService } from './auth-service.js';
+import { DOCUMENT_ENDPOINTS, API_BASE_URL } from '../utilities/constants.js';
 
 export const FolderService = {  
   /**
@@ -11,7 +13,37 @@ export const FolderService = {
    * @returns {Promise} - Promise resolving to files data
    */
   async getFiles() {
-    return ApiService.get('/files');
+    try {
+      // Get the user ID from localStorage directly as a fallback
+      const userId = typeof AuthService.getUserId === 'function' ? AuthService.getUserId() : localStorage.getItem('user_id');
+      
+      if (!userId) {
+        console.error('User ID not found. User might not be properly authenticated.');
+        throw new Error('User authentication error');
+      }
+      
+      // Replace {id} in the GET endpoint with the actual user ID
+      const endpoint = DOCUMENT_ENDPOINTS.GET.replace('{id}', userId).replace(API_BASE_URL, '');
+      console.log('Getting documents for user ID:', userId);
+      console.log('Document endpoint:', endpoint);
+      
+      const response = await ApiService.get(endpoint);
+      
+      // Import the File model to convert API response
+      const { default: File } = await import('../models/file.js');
+      
+      // Transform the API response to match our expected format
+      return {
+        success: true,
+        files: File.fromAPIList(response)
+      };
+    } catch (error) {
+      console.error('Error fetching files:', error);
+      return {
+        success: false,
+        message: error.message || 'Error fetching documents'
+      };
+    }
   },
   
   /**

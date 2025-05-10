@@ -36,9 +36,9 @@ export class File {
   static fromAPI(data) {
     return new File({
       id: data.id,
-      name: data.name || '',
+      name: data.filename || '', // Map 'filename' to 'name'
       path: data.path || '',
-      isCertified: data.isCertified || data.is_certified || false
+      isCertified: data.signed || false // Map 'signed' to 'isCertified'
     });
   }
   
@@ -48,7 +48,8 @@ export class File {
    * @returns {Array<File>} - Array of File instances
    */
   static fromAPIList(data) {
-    const items = data.data || data;
+    // Handle the new response structure with 'items' array
+    const items = data.items || data.data || data;
     return Array.isArray(items) ? items.map(item => File.fromAPI(item)) : [];
   }
 }
