@@ -4,7 +4,7 @@
  */
 
 // Base API URL
-export const API_BASE_URL = 'http://34.49.117.57';
+export const API_BASE_URL = 'http://34.9.149.131';
 
 // Authentication endpoints
 export const AUTH_ENDPOINTS = {

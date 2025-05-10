@@ -156,6 +156,9 @@ export const ApiService = {
       ? {} // Don't set Content-Type for FormData, let the browser set it with boundary
       : { 'Content-Type': 'application/json' };
     
+    console.log('ApiService.post - Endpoint received:', endpoint);
+    console.log('ApiService.post - Full URL will be:', `${API_CONFIG.baseUrl}${endpoint}`);
+    
     return apiRequest(endpoint, {
       ...options,
       headers: { ...headers, ...options.headers },

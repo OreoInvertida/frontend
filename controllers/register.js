@@ -8,6 +8,7 @@ import {
 } from '../utilities/form-utils.js';
 
 import AuthService from '../services/auth-service.js';
+import { AUTH_ENDPOINTS } from '../utilities/constants.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('register-form');
@@ -130,7 +131,7 @@ function encryptSensitiveData(userData) {
 /**
  * Send registration request to the server
  * @param {Object} userData - User data to register
- * @returns {Promise} - Promise that resolves with registration response
+ * @returns {Promise} - Promise resolving with registration response
  */
 async function registerUser(userData) {
     try {
@@ -173,6 +174,10 @@ async function registerUser(userData) {
         } else {
             throw new Error('El documento de identidad es requerido');
         }
+        
+        // Log the API endpoint for debugging
+        console.log('Registering user with AuthService');
+        console.log('REGISTER endpoint from constants:', AUTH_ENDPOINTS.REGISTER);
         
         // Use AuthService to send the request
         return await AuthService.register(formData);
