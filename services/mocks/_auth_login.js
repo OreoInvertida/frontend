@@ -10,8 +10,8 @@ export default function(options) {
   // Mock successful login
   if (email === 'usuario@example.com' && password) {
     return {
-      success: true,
-      token: 'mock-jwt-token-for-testing-purposes-only',
+      access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ODAxNjI4Mzk5MSIsImV4cCI6MTc0NjkxMzg1OH0.A57cXfmAZq4pwaBMcSWkTsRpxIdnD781OIzoCDH3reE',
+      token_type: 'bearer',
       user: {
         name: 'Usuario Prueba',
         firstName: 'Usuario',

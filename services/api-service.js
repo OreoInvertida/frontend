@@ -56,9 +56,13 @@ async function apiRequest(endpoint, options = {}, mockOverride = null) {
     ...options
   };
   
-  // Add auth token if available
+  // Add auth token if available with the token_type
   const token = localStorage.getItem('auth_token');
-  if (token) {
+  const tokenType = localStorage.getItem('token_type');
+  if (token && tokenType) {
+    requestOptions.headers['Authorization'] = `${tokenType} ${token}`;
+  } else if (token) {
+    // Fallback for backward compatibility
     requestOptions.headers['Authorization'] = `Bearer ${token}`;
   }
   

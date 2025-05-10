@@ -28,14 +28,15 @@ export const AuthService = {
    * @returns {Promise} - Promise resolving when logout is complete
    */
   async logout() {
-    // Clear token from localStorage
+    // Clear tokens from localStorage
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('token_type');
     
     // Call logout endpoint (useful for server-side session cleanup)
     try {
       await ApiService.post('/auth/logout', {});
     } catch (error) {
-      console.log('Error during logout, but token was cleared', error);
+      console.log('Error during logout, but tokens were cleared', error);
     }
     
     return { success: true };
@@ -55,6 +56,28 @@ export const AuthService = {
    */
   getToken() {
     return localStorage.getItem('auth_token');
+  },
+  
+  /**
+   * Get the token type
+   * @returns {string|null} - The token type (e.g., 'bearer') or null if not authenticated
+   */
+  getTokenType() {
+    return localStorage.getItem('token_type');
+  },
+  
+  /**
+   * Store authentication tokens
+   * @param {Object} authData - Authentication data containing access_token and token_type
+   */
+  storeAuthTokens(authData) {
+    if (authData.access_token) {
+      localStorage.setItem('auth_token', authData.access_token);
+    }
+    
+    if (authData.token_type) {
+      localStorage.setItem('token_type', authData.token_type);
+    }
   }
 };
 

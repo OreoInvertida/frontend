@@ -21,8 +21,8 @@ function initLoginPage() {
     // Setup password toggle functionality
     setupPasswordToggle();
     
-    // Setup password validation with requirements feedback
-    setupPasswordValidation('password');
+    // Password validation with requirements feedback for login page
+    // setupPasswordValidation('password');
     
     // Setup form submission
     setupLoginForm();
@@ -57,13 +57,20 @@ function setupLoginForm() {
                     // Handle successful login
                     console.log('Login successful', response);
                     
-                    // Save JWT token in localStorage
-                    if (response.token) {
-                        localStorage.setItem('auth_token', response.token);
-                    }
-                    
-                    // Redirect to folder page
-                    window.location.href = 'folder-page.html';
+                    // Import AuthService to store the tokens
+                    import('../services/auth-service.js').then(({ default: AuthService }) => {
+                        // Store authentication tokens using the new format
+                        if (response.access_token) {
+                            // New token format
+                            AuthService.storeAuthTokens(response);
+                        } else if (response.token) {
+                            // Legacy token format (backward compatibility)
+                            localStorage.setItem('auth_token', response.token);
+                        }
+                        
+                        // Redirect to folder page
+                        window.location.href = 'folder-page.html';
+                    });
                 })
                 .catch(error => {
                     // Handle login error
