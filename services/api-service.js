@@ -11,7 +11,7 @@ const API_CONFIG = {
   baseUrl: API_BASE_URL,
   
   // Whether to use mock data instead of real API calls
-  useMocks: true,
+  useMocks: false,
   
   // Default request timeout in milliseconds
   timeout: 10000,

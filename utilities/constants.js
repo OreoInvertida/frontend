@@ -8,8 +8,8 @@ export const API_BASE_URL = 'http://34.49.117.57';
 
 // Authentication endpoints
 export const AUTH_ENDPOINTS = {
-    LOGIN: `${API_BASE_URL}/views/login`,
-    REGISTER: `${API_BASE_URL}/views/register`,
+    LOGIN: `${API_BASE_URL}/login`,
+    REGISTER: `${API_BASE_URL}/register`,
     CHANGE_PASSWORD: `${API_BASE_URL}/views/change-password`,
     LOGOUT: `${API_BASE_URL}/views/logout`
 };
