@@ -18,7 +18,8 @@ const API_CONFIG = {
   
   // Default headers for all requests
   defaultHeaders: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*'
   }
 };
 
