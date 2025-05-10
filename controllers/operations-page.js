@@ -1,3 +1,4 @@
+import OperationsService from '../services/operations-service.js';
 /**
  * Operations Page Controller
  * Handles document requests and operations tracking
@@ -164,145 +165,144 @@ function setupModalListeners() {
 /**
  * Load requests data into the requests table
  */
-function loadRequestsData() {
-    // Mock data - would be replaced with API call
-    const requests = [
-        { id: 'REQ001', type: 'Solicitud', document: 'Cédula', entityName: 'Registraduría Nacional', status: 'pending' },
-        { id: 'REQ002', type: 'Recepción', document: 'Pasaporte', entityName: 'Cancillería', status: 'completed' },
-        { id: 'REQ005', type: 'Recepción', document: 'Historia clínica', entityName: 'SURA EPS', status: 'completed' },
-        { id: 'REQ003', type: 'Solicitud', document: 'Licencia', entityName: 'Ministerio de Transporte', status: 'failed' },
-        { id: 'REQ004', type: 'Solicitud', document: 'Certificado', entityName: 'Cámara de Comercio', status: 'pending' }
-    ];
-    
-    const requestsTableBody = document.getElementById('requestsTableBody');
-    if (!requestsTableBody) return;
-    
-    requestsTableBody.innerHTML = '';
-    
-    requests.forEach(req => {
-        const row = document.createElement('tr');
-        row.dataset.id = req.id;
-        row.className = 'request-row';
+async function loadRequestsData() {
+    try {
+        // Show loading state
+        const requestsTableBody = document.getElementById('requestsTableBody');
+        if (!requestsTableBody) return;
+        requestsTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Cargando solicitudes...</td></tr>';
         
-        // Create status badge based on status
-        let statusBadge = '';
-        switch(req.status) {
-            case 'pending':
-                statusBadge = '<span class="status-badge status-pending">Pendiente</span>';
-                break;
-            case 'completed':
-                statusBadge = '<span class="status-badge status-completed">Completado</span>';
-                break;
-            case 'failed':
-                statusBadge = '<span class="status-badge status-failed">Fallido</span>';
-                break;
+        // Get requests data from the service
+        const response = await OperationsService.getIncomingRequests();
+        
+        // Clear the table
+        requestsTableBody.innerHTML = '';
+        
+        if (!response.success || !response.requests || response.requests.length === 0) {
+            requestsTableBody.innerHTML = '<tr><td colspan="6" class="text-center">No hay solicitudes disponibles</td></tr>';
+            return;
         }
         
-        // Create action buttons based on request status
-        let actionButtons = '<i class="bi bi-info-circle action-btn details-btn" title="Ver Detalles"></i>';
+        // Populate the table with the requests
+        response.requests.forEach(req => {
+            const row = document.createElement('tr');
+            row.dataset.id = req.id;
+            row.className = 'request-row';
+            
+            // Create status badge based on status
+            let statusBadge = '';
+            switch(req.status) {
+                case 'pending':
+                    statusBadge = '<span class="status-badge status-pending">Pendiente</span>';
+                    break;
+                case 'completed':
+                    statusBadge = '<span class="status-badge status-completed">Completado</span>';
+                    break;
+                case 'failed':
+                    statusBadge = '<span class="status-badge status-failed">Fallido</span>';
+                    break;
+            }
+            
+            // Create action buttons based on request status
+            let actionButtons = '<i class="bi bi-info-circle action-btn details-btn" title="Ver Detalles"></i>';
+            
+            if (req.status === 'failed') {
+                actionButtons += ' <i class="bi bi-arrow-repeat action-btn retry-btn" title="Reintentar"></i>';
+            }
+            
+            actionButtons += ' <i class="bi bi-trash action-btn delete-btn" title="Eliminar"></i>';
+            
+            row.innerHTML = `
+                <td>${req.id}</td>
+                <td>${req.type}</td>
+                <td>${req.document}</td>
+                <td>${req.entityName}</td>
+                <td>${statusBadge}</td>
+                <td>${actionButtons}</td>
+            `;
+            
+            requestsTableBody.appendChild(row);
+        });
         
-        if (req.status === 'failed') {
-            actionButtons += ' <i class="bi bi-arrow-repeat action-btn retry-btn" title="Reintentar"></i>';
+        // Add event listeners to action buttons
+        addRequestActionListeners();
+    } catch (error) {
+        console.error('Error loading requests data:', error);
+        const requestsTableBody = document.getElementById('requestsTableBody');
+        if (requestsTableBody) {
+            requestsTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error al cargar las solicitudes</td></tr>';
         }
-        
-        actionButtons += ' <i class="bi bi-trash action-btn delete-btn" title="Eliminar"></i>';
-        
-        row.innerHTML = `
-            <td>${req.id}</td>
-            <td>${req.type}</td>
-            <td>${req.document}</td>
-            <td>${req.entityName}</td>
-            <td>${statusBadge}</td>
-            <td>${actionButtons}</td>
-        `;
-        
-        requestsTableBody.appendChild(row);
-    });
-    
-    // Add event listeners to action buttons
-    addRequestActionListeners();
+    }
 }
 
 /**
  * Load operations data into the operations table
  */
-function loadOperationsData() {
-    // Mock data - would be replaced with API call
-    const operations = [
-        { 
-            id: 'OP001',
-            type: 'Solicitud',
-            document: 'Cédula',
-            entity: 'Registraduría Nacional',
-            status: 'pending'
-        },
-        { 
-            id: 'OP002',
-            type: 'Recepción',
-            document: 'Pasaporte',
-            entity: 'Cancillería',
-            status: 'completed'
-        },
-        { 
-            id: 'OP003',
-            type: 'Solicitud',
-            document: 'Licencia',
-            entity: 'Ministerio de Transporte',
-            status: 'failed'
-        },
-        { 
-            id: 'OP004',
-            type: 'Solicitud',
-            document: 'Certificado',
-            entity: 'Cámara de Comercio',
-            status: 'pending'
-        }
-    ];
-    
-    const operationsTableBody = document.getElementById('operationsTableBody');
-    if (!operationsTableBody) return;
-    
-    operationsTableBody.innerHTML = '';
-    
-    operations.forEach(op => {
-        const row = document.createElement('tr');
-        row.dataset.id = op.id;
+async function loadOperationsData() {
+    try {
+        // Show loading state
+        const operationsTableBody = document.getElementById('operationsTableBody');
+        if (!operationsTableBody) return;
+        operationsTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Cargando operaciones...</td></tr>';
         
-        // Create status badge based on status
-        let statusBadge = '';
-        switch(op.status) {
-            case 'pending':
-                statusBadge = '<span class="status-badge status-pending">Pendiente</span>';
-                break;
-            case 'completed':
-                statusBadge = '<span class="status-badge status-completed">Completado</span>';
-                break;
-            case 'failed':
-                statusBadge = '<span class="status-badge status-failed">Fallido</span>';
-                break;
+        // Get operations data from the service
+        const response = await OperationsService.getOutgoingOperations();
+        
+        // Clear the table
+        operationsTableBody.innerHTML = '';
+        
+        if (!response.success || !response.operations || response.operations.length === 0) {
+            operationsTableBody.innerHTML = '<tr><td colspan="6" class="text-center">No hay operaciones disponibles</td></tr>';
+            return;
         }
         
-        // Create action buttons
-        const actionButtons = `
-            <i class="bi bi-info-circle action-btn details-btn" title="Ver Detalles"></i>
-            <i class="bi bi-arrow-repeat action-btn retry-btn" title="Reintentar"></i>
-            <i class="bi bi-trash action-btn delete-btn" title="Eliminar"></i>
-        `;
+        // Populate the table with the operations
+        response.operations.forEach(op => {
+            const row = document.createElement('tr');
+            row.dataset.id = op.id;
+            
+            // Create status badge based on status
+            let statusBadge = '';
+            switch(op.status) {
+                case 'pending':
+                    statusBadge = '<span class="status-badge status-pending">Pendiente</span>';
+                    break;
+                case 'completed':
+                    statusBadge = '<span class="status-badge status-completed">Completado</span>';
+                    break;
+                case 'failed':
+                    statusBadge = '<span class="status-badge status-failed">Fallido</span>';
+                    break;
+            }
+            
+            // Create action buttons
+            const actionButtons = `
+                <i class="bi bi-info-circle action-btn details-btn" title="Ver Detalles"></i>
+                <i class="bi bi-arrow-repeat action-btn retry-btn" title="Reintentar"></i>
+                <i class="bi bi-trash action-btn delete-btn" title="Eliminar"></i>
+            `;
+            
+            row.innerHTML = `
+                <td>${op.id}</td>
+                <td>${op.type}</td>
+                <td>${op.document}</td>
+                <td>${op.entity}</td>
+                <td>${statusBadge}</td>
+                <td>${actionButtons}</td>
+            `;
+            
+            operationsTableBody.appendChild(row);
+        });
         
-        row.innerHTML = `
-            <td>${op.id}</td>
-            <td>${op.type}</td>
-            <td>${op.document}</td>
-            <td>${op.entity}</td>
-            <td>${statusBadge}</td>
-            <td>${actionButtons}</td>
-        `;
-        
-        operationsTableBody.appendChild(row);
-    });
-    
-    // Add event listeners for action buttons
-    addOperationActionListeners();
+        // Add event listeners for action buttons
+        addOperationActionListeners();
+    } catch (error) {
+        console.error('Error loading operations data:', error);
+        const operationsTableBody = document.getElementById('operationsTableBody');
+        if (operationsTableBody) {
+            operationsTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error al cargar las operaciones</td></tr>';
+        }
+    }
 }
 
 /**
@@ -488,85 +488,82 @@ function showRequestDetails(requestId) {
  * Show operation details in a modal
  * @param {string} operationId - ID of the operation to display
  */
-function showOperationDetails(operationId) {
-    // In a real app, you would fetch operation details from the API here
-    // Mock operation details for demonstration
-    const operationDetails = {
-        id: operationId,
-        type: 'Solicitud',
-        document: 'Cédula',
-        entity: 'Registraduría Nacional',
-        createdDate: '2025-05-01T10:30:00',
-        status: 'pending',
-        description: 'Solicitud de copia digital de cédula',
-        requestedBy: 'Juan Pérez',
-        events: [
-            { date: '2025-05-01T10:30:00', description: 'Solicitud creada' },
-            { date: '2025-05-01T10:35:00', description: 'Solicitud enviada a la entidad' },
-            { date: '2025-05-01T11:45:00', description: 'Solicitud recibida por la entidad' }
-        ]
-    };
-    
-    // Populate operation details
-    const operationDetailsContainer = document.getElementById('operationDetails');
-    operationDetailsContainer.innerHTML = `
-        <div class="detail-row">
-            <div class="detail-label">ID:</div>
-            <div>${operationDetails.id}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Tipo:</div>
-            <div>${operationDetails.type}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Documento:</div>
-            <div>${operationDetails.document}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Entidad:</div>
-            <div>${operationDetails.entity}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Fecha Creación:</div>
-            <div>${formatDateTime(operationDetails.createdDate)}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Estado:</div>
-            <div>${getStatusBadgeHTML(operationDetails.status)}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Descripción:</div>
-            <div>${operationDetails.description}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Solicitado por:</div>
-            <div>${operationDetails.requestedBy}</div>
-        </div>
-    `;
-    
-    // Populate timeline events
-    const timelineContainer = document.getElementById('timelineEvents');
-    timelineContainer.innerHTML = '';
-    
-    operationDetails.events.forEach(event => {
-        const eventItem = document.createElement('li');
-        eventItem.className = 'list-group-item timeline-event';
-        eventItem.innerHTML = `
-            <div>${event.description}</div>
-            <div class="timeline-date">${formatDateTime(event.date)}</div>
+async function showOperationDetails(operationId) {
+    try {
+        // Get operation details from the service
+        const response = await OperationsService.getOperationDetails(operationId);
+        
+        if (!response.success || !response.operation) {
+            alert('No se pudieron cargar los detalles de la operación');
+            return;
+        }
+        
+        const operationDetails = response.operation;
+        
+        // Populate operation details
+        const operationDetailsContainer = document.getElementById('operationDetails');
+        operationDetailsContainer.innerHTML = `
+            <div class="detail-row">
+                <div class="detail-label">ID:</div>
+                <div>${operationDetails.id}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Tipo:</div>
+                <div>${operationDetails.type}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Documento:</div>
+                <div>${operationDetails.document}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Entidad:</div>
+                <div>${operationDetails.entity}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Fecha Creación:</div>
+                <div>${formatDateTime(operationDetails.createdDate)}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Estado:</div>
+                <div>${getStatusBadgeHTML(operationDetails.status)}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Descripción:</div>
+                <div>${operationDetails.description}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Solicitado por:</div>
+                <div>${operationDetails.requestedBy}</div>
+            </div>
         `;
-        timelineContainer.appendChild(eventItem);
-    });
-    
-    // Show the modal
-    const modal = new bootstrap.Modal(document.getElementById('operationDetailsModal'));
-    modal.show();
+        
+        // Populate timeline events
+        const timelineContainer = document.getElementById('timelineEvents');
+        timelineContainer.innerHTML = '';
+        
+        operationDetails.events.forEach(event => {
+            const eventItem = document.createElement('li');
+            eventItem.className = 'list-group-item timeline-event';
+            eventItem.innerHTML = `
+                <div>${event.description}</div>
+                <div class="timeline-date">${formatDateTime(event.date)}</div>
+            `;
+            timelineContainer.appendChild(eventItem);
+        });
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('operationDetailsModal'));
+        modal.show();
+    } catch (error) {
+        console.error('Error loading operation details:', error);
+        alert('Error al cargar los detalles de la operación');
+    }
 }
 
 /**
  * Handle the submission of a document request
  */
-function submitDocumentRequest() {
+async function submitDocumentRequest() {
     const requestType = document.getElementById('requestType').value;
     const requestEntity = document.getElementById('requestEntity').value;
     const requestNotes = document.getElementById('requestNotes').value;
@@ -576,23 +573,32 @@ function submitDocumentRequest() {
         return;
     }
     
-    // In a real app, this would send data to your API
-    console.log('Submitting request:', { requestType, requestEntity, requestNotes });
-    
-    // Close the modal
-    bootstrap.Modal.getInstance(document.getElementById('requestDocumentModal')).hide();
-    
-    // Show success message
-    alert('Solicitud enviada correctamente');
-    
-    // Reload requests data (would be triggered by API response in real app)
-    loadRequestsData();
+    try {
+        // Submit request data to the service
+        const response = await OperationsService.submitDocumentRequest({
+            requestType,
+            requestEntity,
+            requestNotes
+        });
+        
+        // Close the modal
+        bootstrap.Modal.getInstance(document.getElementById('requestDocumentModal')).hide();
+        
+        // Show success message
+        alert(response.message || 'Solicitud enviada correctamente');
+        
+        // Reload requests data
+        loadRequestsData();
+    } catch (error) {
+        console.error('Error submitting document request:', error);
+        alert('Error al enviar la solicitud: ' + (error.data?.message || 'Error desconocido'));
+    }
 }
 
 /**
  * Handle the confirmation of a document receipt
  */
-function confirmDocumentReceive() {
+async function confirmDocumentReceive() {
     const receiveCode = document.getElementById('receiveCode').value;
     const receiveNotes = document.getElementById('receiveNotes').value;
     
@@ -601,17 +607,25 @@ function confirmDocumentReceive() {
         return;
     }
     
-    // In a real app, this would send data to your API
-    console.log('Confirming receipt:', { receiveCode, receiveNotes });
-    
-    // Close the modal
-    bootstrap.Modal.getInstance(document.getElementById('receiveDocumentModal')).hide();
-    
-    // Show success message
-    alert('Recepción confirmada correctamente');
-    
-    // Reload requests data (would be triggered by API response in real app)
-    loadRequestsData();
+    try {
+        // Submit receipt confirmation to the service
+        const response = await OperationsService.confirmDocumentReceipt({
+            receiveCode,
+            receiveNotes
+        });
+        
+        // Close the modal
+        bootstrap.Modal.getInstance(document.getElementById('receiveDocumentModal')).hide();
+        
+        // Show success message
+        alert(response.message || 'Recepción confirmada correctamente');
+        
+        // Reload operations data
+        loadOperationsData();
+    } catch (error) {
+        console.error('Error confirming document receipt:', error);
+        alert('Error al confirmar la recepción: ' + (error.data?.message || 'Error desconocido'));
+    }
 }
 
 /**
@@ -633,19 +647,24 @@ function cancelSelectedRequest() {
  * Confirm deletion of a request
  * @param {string} requestId - ID of the request to delete
  */
-function confirmDeleteRequest(requestId) {
+async function confirmDeleteRequest(requestId) {
     if (confirm('¿Estás seguro de que quieres eliminar esta solicitud?')) {
-        // In a real app, this would call your API to delete the request
-        console.log('Deleting request:', requestId);
-        
-        // Remove the row from the UI
-        const row = document.querySelector(`#requestsTableBody tr[data-id="${requestId}"]`);
-        if (row) {
-            row.remove();
+        try {
+            // Delete the request via the service
+            await OperationsService.deleteRequest(requestId);
+            
+            // Remove the row from the UI
+            const row = document.querySelector(`#requestsTableBody tr[data-id="${requestId}"]`);
+            if (row) {
+                row.remove();
+            }
+            
+            // Show success message
+            alert('Solicitud cancelada correctamente');
+        } catch (error) {
+            console.error('Error deleting request:', error);
+            alert('Error al eliminar la solicitud: ' + (error.data?.message || 'Error desconocido'));
         }
-        
-        // Show success message
-        alert('Solicitud cancelada correctamente');
     }
 }
 
@@ -653,19 +672,24 @@ function confirmDeleteRequest(requestId) {
  * Confirm deletion of an operation
  * @param {string} operationId - ID of the operation to delete
  */
-function confirmDeleteOperation(operationId) {
+async function confirmDeleteOperation(operationId) {
     if (confirm('¿Estás seguro de que quieres eliminar esta operación?')) {
-        // In a real app, this would call your API to delete the operation
-        console.log('Deleting operation:', operationId);
-        
-        // Remove the row from the UI
-        const row = document.querySelector(`#operationsTableBody tr[data-id="${operationId}"]`);
-        if (row) {
-            row.remove();
+        try {
+            // Delete the operation via the service
+            await OperationsService.deleteOperation(operationId);
+            
+            // Remove the row from the UI
+            const row = document.querySelector(`#operationsTableBody tr[data-id="${operationId}"]`);
+            if (row) {
+                row.remove();
+            }
+            
+            // Show success message
+            alert('Operación eliminada correctamente');
+        } catch (error) {
+            console.error('Error deleting operation:', error);
+            alert('Error al eliminar la operación: ' + (error.data?.message || 'Error desconocido'));
         }
-        
-        // Show success message
-        alert('Operación eliminada correctamente');
     }
 }
 
@@ -673,92 +697,90 @@ function confirmDeleteOperation(operationId) {
  * Retry a failed request
  * @param {string} requestId - ID of the request to retry
  */
-function retryFailedRequest(requestId) {
-    // In a real app, this would call your API to retry the request
-    console.log('Retrying failed request:', requestId);
-    
-    // Show confirmation message
-    alert('Reintentando solicitud fallida...');
-    
-    // Simulate API call success
-    setTimeout(() => {
-        // In a real app, the API would handle changing the status to pending
-        alert('Solicitud enviada nuevamente. Estado cambiado a "Pendiente"');
+async function retryFailedRequest(requestId) {
+    try {
+        // Show confirmation message
+        alert('Reintentando solicitud fallida...');
         
-        // Reload requests data (would be triggered by API response in real app)
+        // Retry the request via the service
+        const response = await OperationsService.retryRequest(requestId);
+        
+        // Show success message
+        alert(response.message || 'Solicitud enviada nuevamente. Estado cambiado a "Pendiente"');
+        
+        // Reload requests data
         loadRequestsData();
-    }, 1000);
+    } catch (error) {
+        console.error('Error retrying request:', error);
+        alert('Error al reintentar la solicitud: ' + (error.data?.message || 'Error desconocido'));
+    }
 }
 
 /**
  * Retry a failed operation
  * @param {string} operationId - ID of the operation to retry
  */
-function retryFailedOperation(operationId) {
-    // In a real app, this would call your API to retry the operation
-    console.log('Retrying failed operation:', operationId);
-    
-    // Show confirmation message
-    alert('Reintentando operación fallida...');
-    
-    // Simulate API call success
-    setTimeout(() => {
-        // In a real app, the API would handle changing the status to pending
-        alert('Operación enviada nuevamente. Estado cambiado a "Pendiente"');
+async function retryFailedOperation(operationId) {
+    try {
+        // Show confirmation message
+        alert('Reintentando operación fallida...');
         
-        // Reload operations data (would be triggered by API response in real app)
+        // Retry the operation via the service
+        const response = await OperationsService.retryOperation(operationId);
+        
+        // Show success message
+        alert(response.message || 'Operación enviada nuevamente. Estado cambiado a "Pendiente"');
+        
+        // Reload operations data
         loadOperationsData();
-    }, 1000);
+    } catch (error) {
+        console.error('Error retrying operation:', error);
+        alert('Error al reintentar la operación: ' + (error.data?.message || 'Error desconocido'));
+    }
 }
 
 /**
  * Search for entities/users based on input
  * @param {string} query - Search query
  */
-function searchEntities(query) {
-    if (!query || query.length < 3) {
-        document.getElementById('entityResults').classList.add('d-none');
-        return;
-    }
-    
-    // Mock entities for demonstration
-    const entities = [
-        { id: 1, name: 'Registraduría Nacional', type: 'entity' },
-        { id: 2, name: 'Cancillería', type: 'entity' },
-        { id: 3, name: 'Ministerio de Transporte', type: 'entity' },
-        { id: 4, name: 'Cámara de Comercio', type: 'entity' },
-        { id: 5, name: 'Juan Pérez', type: 'user' },
-        { id: 6, name: 'María González', type: 'user' }
-    ];
-    
-    // Filter entities based on query
-    const filteredEntities = entities.filter(entity => 
-        entity.name.toLowerCase().includes(query.toLowerCase())
-    );
-    
-    // Display results
-    const resultsContainer = document.getElementById('entityResults');
-    resultsContainer.innerHTML = '';
-    
-    if (filteredEntities.length === 0) {
-        resultsContainer.innerHTML = '<div class="entity-item">No se encontraron resultados</div>';
-    } else {
-        filteredEntities.forEach(entity => {
-            const entityItem = document.createElement('div');
-            entityItem.className = 'entity-item';
-            entityItem.innerHTML = `
-                <strong>${entity.name}</strong> 
-                <small>(${entity.type === 'entity' ? 'Entidad' : 'Usuario'})</small>
-            `;
-            entityItem.addEventListener('click', function() {
-                document.getElementById('requestEntity').value = entity.name;
-                resultsContainer.classList.add('d-none');
+async function searchEntities(query) {
+    try {
+        if (!query || query.length < 3) {
+            document.getElementById('entityResults').classList.add('d-none');
+            return;
+        }
+        
+        // Search for entities via the service
+        const response = await OperationsService.searchEntities(query);
+        
+        // Display results
+        const resultsContainer = document.getElementById('entityResults');
+        resultsContainer.innerHTML = '';
+        
+        if (!response.success || !response.entities || response.entities.length === 0) {
+            resultsContainer.innerHTML = '<div class="entity-item">No se encontraron resultados</div>';
+        } else {
+            response.entities.forEach(entity => {
+                const entityItem = document.createElement('div');
+                entityItem.className = 'entity-item';
+                entityItem.innerHTML = `
+                    <strong>${entity.name}</strong> 
+                    <small>(${entity.type === 'entity' ? 'Entidad' : 'Usuario'})</small>
+                `;
+                entityItem.addEventListener('click', function() {
+                    document.getElementById('requestEntity').value = entity.name;
+                    resultsContainer.classList.add('d-none');
+                });
+                resultsContainer.appendChild(entityItem);
             });
-            resultsContainer.appendChild(entityItem);
-        });
+        }
+        
+        resultsContainer.classList.remove('d-none');
+    } catch (error) {
+        console.error('Error searching for entities:', error);
+        // Don't show an alert for search errors to not interrupt the user
+        document.getElementById('entityResults').classList.add('d-none');
     }
-    
-    resultsContainer.classList.remove('d-none');
 }
 
 /**
@@ -822,6 +844,6 @@ function highlightSelectedRow(requestId) {
     
     // Optionally log selection for debugging
     const document = row.querySelector('td:nth-child(3)').textContent;
-    const status = row.querySelector('td:nth-child(6) .status-badge').textContent;
+    const status = row.querySelector('td:nth-child(5) .status-badge').textContent;
     console.log(`Row selected: ${document} (${requestId}) - Status: ${status}`);
 }

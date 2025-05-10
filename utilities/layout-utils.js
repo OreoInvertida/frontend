@@ -265,3 +265,6 @@ function initCommonLayout(activePage) {
         injectSideNav('nav-container', activePage);
     });
 }
+
+// Export the functions that need to be accessible from other modules
+export { initCommonLayout, injectHeader, injectSideNav };
