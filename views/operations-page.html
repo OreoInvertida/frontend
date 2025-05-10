@@ -30,48 +30,66 @@
             <div class="operations-container">
                 <ul class="nav nav-tabs" id="operationsTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button" role="tab" aria-controls="requests" aria-selected="true">Mis Solicitudes</button>
+                        <button class="nav-link active" id="incoming-requests-tab" data-bs-toggle="tab" data-bs-target="#incoming-requests" type="button" role="tab" aria-controls="incoming-requests" aria-selected="true">Solicitudes Entrantes</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="operations-tab" data-bs-toggle="tab" data-bs-target="#operations" type="button" role="tab" aria-controls="operations" aria-selected="false">Operaciones</button>
+                        <button class="nav-link" id="outgoing-requests-tab" data-bs-toggle="tab" data-bs-target="#outgoing-requests" type="button" role="tab" aria-controls="outgoing-requests" aria-selected="false">Solicitudes Salientes</button>
                     </li>
                 </ul>
                 
+                <!-- Table Template (hidden) -->
+                <template id="requestsTableTemplate">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tipo</th>
+                                <th>Documento</th>
+                                <th>Entidad</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded here dynamically -->
+                        </tbody>
+                    </table>
+                </template>
+                
                 <div class="tab-content mt-3" id="operationsTabContent">
-                    <!-- Requests Tab -->
-                    <div class="tab-pane fade show active" id="requests" role="tabpanel" aria-labelledby="requests-tab">
-                        <div class="action-buttons mb-3">
-                            <button class="btn btn-primary" id="requestDocumentBtn">Solicitar Documento</button>
-                            <button class="btn btn-success" id="receiveDocumentBtn">Recibir Documento</button>
+                    <!-- Incoming Requests Tab -->
+                    <div class="tab-pane fade show active" id="incoming-requests" role="tabpanel" aria-labelledby="incoming-requests-tab">
+                        <div class="operations-filters mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <select class="form-select" id="incomingStatusFilter">
+                                        <option value="all">Todos los estados</option>
+                                        <option value="pending">Pendiente</option>
+                                        <option value="completed">Completado</option>
+                                        <option value="failed">Fallido</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" id="searchIncomingRequests" placeholder="Buscar solicitud...">
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-outline-primary w-100" id="refreshIncomingRequests">
+                                        <i class="bi bi-arrow-clockwise"></i> Actualizar
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="request-list">
-                            <p class="text-muted mb-2"><small>Desliza hacia la izquierda para eliminar una solicitud pendiente.</small></p>
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Tipo</th>
-                                        <th>Documento</th>
-                                        <th>Origen/Destino</th>
-                                        <th>Fecha</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="requestsTableBody">
-                                    <!-- Requests will be loaded here dynamically -->
-                                </tbody>
-                            </table>
+                        <div class="request-list" id="incomingRequestsContainer">
+                            <!-- Table will be inserted here -->
                         </div>
                     </div>
                     
-                    <!-- Operations Tab -->
-                    <div class="tab-pane fade" id="operations" role="tabpanel" aria-labelledby="operations-tab">
-                        <!-- Rest of the operations tab content remains the same -->
+                    <!-- Outgoing Requests Tab -->
+                    <div class="tab-pane fade" id="outgoing-requests" role="tabpanel" aria-labelledby="outgoing-requests-tab">
                         <div class="operations-filters mb-3">
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <select class="form-select" id="statusFilter">
                                         <option value="all">Todos los estados</option>
                                         <option value="pending">Pendiente</option>
@@ -79,15 +97,13 @@
                                         <option value="failed">Fallido</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <select class="form-select" id="typeFilter">
-                                        <option value="all">Todos los tipos</option>
-                                        <option value="request">Solicitud</option>
-                                        <option value="receive">Recepción</option>
-                                    </select>
-                                </div>
                                 <div class="col-md-4">
                                     <input type="text" class="form-control" id="searchOperations" placeholder="Buscar operación...">
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-primary w-100" id="requestDocumentBtn">
+                                        <i class="bi bi-plus-circle"></i> Solicitar
+                                    </button>
                                 </div>
                                 <div class="col-md-2">
                                     <button class="btn btn-outline-primary w-100" id="refreshOperations">
@@ -97,24 +113,8 @@
                             </div>
                         </div>
                         
-                        <div class="operations-list">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID Operación</th>
-                                        <th>Tipo</th>
-                                        <th>Documento</th>
-                                        <th>Usuario/Entidad</th>
-                                        <th>Fecha Creación</th>
-                                        <th>Última Actualización</th>
-                                        <th>Estado</th>
-                                        <th>Detalles</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="operationsTableBody">
-                                    <!-- Operations will be loaded here dynamically -->
-                                </tbody>
-                            </table>
+                        <div class="operations-list" id="outgoingRequestsContainer">
+                            <!-- Table will be inserted here -->
                         </div>
                     </div>
                 </div>
