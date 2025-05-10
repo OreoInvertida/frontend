@@ -3,34 +3,8 @@
  * Handles GET requests for downloading specific files
  */
 
-// Mock file reference data
-const fileReferences = {
-  'file-001': {
-    documentTitle: 'Medical Certificate',
-    mimeType: 'application/pdf',
-    name: 'medical-certificate.pdf'
-  },
-  'file-002': {
-    documentTitle: 'University Degree',
-    mimeType: 'image/jpeg',
-    name: 'university-degree.jpg'
-  },
-  'file-003': {
-    documentTitle: 'Work Contract',
-    mimeType: 'application/pdf',
-    name: 'work-contract.pdf'
-  },
-  'file-004': {
-    documentTitle: 'Legal Identification',
-    mimeType: 'image/png',
-    name: 'legal-id.png'
-  },
-  'file-005': {
-    documentTitle: 'Tax Declaration',
-    mimeType: 'application/pdf',
-    name: 'tax-declaration.pdf'
-  }
-};
+// Import shared mock files collection
+import { mockFiles } from './_files.js';
 
 export default function(options) {
   // Extract fileId from the endpoint
@@ -40,21 +14,19 @@ export default function(options) {
   
   // Handle GET request to download a file
   if (!options.method || options.method === 'GET') {
-    // Check if file exists in our reference data
-    if (fileReferences[fileId] || fileId.startsWith('file-')) {
-      const fileData = fileReferences[fileId] || {
-        documentTitle: 'Generated Document',
-        mimeType: 'application/pdf',
-        name: `file-${fileId}.pdf`
-      };
-      
+    // Find the file in the mock files collection
+    const file = mockFiles.find(file => file.id === fileId);
+    
+    if (file) {
       // Generate a mock download URL that includes file name for realism
-      const downloadUrl = `https://example.com/download/${fileId}/${fileData.name}?token=mock-token-${Date.now()}`;
+      const downloadUrl = `https://example.com/download/${fileId}/${file.name}?token=mock-token-${Date.now()}`;
       
+      // Include information about certification status in the response
       return {
         success: true,
-        documentTitle: fileData.documentTitle,
-        mimeType: fileData.mimeType,
+        documentTitle: file.documentTitle,
+        mimeType: file.mimeType,
+        isCertified: file.isCertified,
         downloadUrl: downloadUrl
       };
     } else {

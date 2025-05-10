@@ -3,7 +3,8 @@
 /* Documents grid styles */
 .documents-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, 150px);
+    grid-template-rows: repeat(auto-fill, 150px);
     gap: 20px;
     padding: 20px;
     width: calc(100% - 80px); /* Subtract toolbar width + space */
@@ -20,6 +21,7 @@
     cursor: pointer;
     border-radius: 8px;
     transition: background-color 0.2s;
+    position: relative; /* Added for positioning certification badge */
 }
 
 .document-item:hover {
@@ -29,6 +31,29 @@
 .document-item.selected {
     background-color: rgba(78, 131, 243, 0.1);
     border: 1px solid var(--blue);
+}
+
+/* Certified document styles */
+.document-item.certified {
+    background-color: rgba(40, 167, 69, 0.05);
+    border: 1px solid #28a745;
+}
+
+.document-item.certified.selected {
+    background-color: rgba(40, 167, 69, 0.15);
+}
+
+.certified-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: #28a745;
+    font-size: 1.2rem;
+    z-index: 2;
+}
+
+.certified-badge i {
+    color: #28a745;
 }
 
 .document-icon {

@@ -70,6 +70,18 @@ export const FolderService = {
       
       return await response.blob();
     }
+  },
+  
+  /**
+   * Certify a file
+   * @param {string} fileId - ID of the file to certify
+   * @param {string} name - Name of the document
+   * @returns {Promise} - Promise resolving to certification result
+   */
+  async certifyFile(fileId, name) {
+    return ApiService.post(`/files/${fileId}/certify`, {
+      name: name
+    });
   }
 };
 

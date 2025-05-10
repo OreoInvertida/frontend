@@ -5,39 +5,14 @@
 
 export class File {
   /**
-   * Possible file categories
-   */
-  static CATEGORIES = {
-    HEALTH: 'health',
-    EDUCATION: 'education',
-    LABOUR: 'labour',
-    LEGAL: 'legal',
-    TRIBUTARY: 'tributary'
-  };
-
-  /**
    * Create a new File instance
    * @param {Object} data - Raw file data
    */
   constructor(data = {}) {
     this.id = data.id || null;
-    this.documentTitle = data.documentTitle || '';
-    this.url = data.url || '';
+    this.name = data.name || '';
+    this.path = data.path || '';
     this.isCertified = data.isCertified || false;
-    this.category = this.validateCategory(data.category);
-  }
-  
-  /**
-   * Validate and normalize the category value
-   * @param {string} category - The category value to validate
-   * @returns {string} - A valid category value
-   * @private
-   */
-  validateCategory(category) {
-    const validCategories = Object.values(File.CATEGORIES);
-    return category && validCategories.includes(category) 
-      ? category 
-      : null;
   }
   
   /**
@@ -47,10 +22,9 @@ export class File {
   toJSON() {
     return {
       id: this.id,
-      documentTitle: this.documentTitle,
-      url: this.url,
-      isCertified: this.isCertified,
-      category: this.category
+      name: this.name,
+      path: this.path,
+      isCertified: this.isCertified
     };
   }
   
@@ -62,10 +36,9 @@ export class File {
   static fromAPI(data) {
     return new File({
       id: data.id,
-      documentTitle: data.documentTitle || data.document_title || '',
-      url: data.url || '',
-      isCertified: data.isCertified || data.is_certified || false,
-      category: data.category || ''
+      name: data.name || '',
+      path: data.path || '',
+      isCertified: data.isCertified || data.is_certified || false
     });
   }
   

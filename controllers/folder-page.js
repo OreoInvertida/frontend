@@ -12,36 +12,37 @@ document.addEventListener('DOMContentLoaded', function() {
  * Initialize the folder page components
  */
 function initFolderPage() {
-    // Mock data - would be replaced with API call
-    const documents = [
-        { id: 1, name: 'Cédula.jpg', type: 'image/jpeg' },
-        { id: 2, name: 'Documento-1.pdf', type: 'application/pdf' },
-        { id: 3, name: 'Documento-2.pdf', type: 'application/pdf' },
-        { id: 4, name: 'Cédula.jpg', type: 'image/jpeg' },
-        { id: 5, name: 'Documento-1.pdf', type: 'application/pdf' },
-        { id: 6, name: 'Documento-2.pdf', type: 'application/pdf' },
-        { id: 7, name: 'Cédula.jpg', type: 'image/jpeg' },
-        { id: 8, name: 'Documento-1.pdf', type: 'application/pdf' },
-        { id: 9, name: 'Documento-2.pdf', type: 'application/pdf' },
-        { id: 10, name: 'Cédula.jpg', type: 'image/jpeg' },
-        { id: 11, name: 'Documento-1.pdf', type: 'application/pdf' },
-        { id: 12, name: 'Documento-2.pdf', type: 'application/pdf' },
-        { id: 13, name: 'Cédula.jpg', type: 'image/jpeg' },
-        { id: 14, name: 'Documento-1.pdf', type: 'application/pdf' },
-        { id: 15, name: 'Documento-2.pdf', type: 'application/pdf' },
-        { id: 16, name: 'Cédula.jpg', type: 'image/jpeg' },
-        { id: 17, name: 'Documento-1.pdf', type: 'application/pdf' },
-        { id: 18, name: 'Documento-2.pdf', type: 'application/pdf' },
-        { id: 19, name: 'Cédula.jpg', type: 'image/jpeg' },
-        { id: 20, name: 'Documento-1.pdf', type: 'application/pdf' },
-        { id: 21, name: 'Documento-2.pdf', type: 'application/pdf' }
-    ];
-    
     // Setup event listeners for toolbar buttons
     setupToolbarListeners();
     
-    // Load documents to the grid
-    renderDocuments(documents);
+    // Load documents from API
+    loadDocumentsFromApi();
+}
+
+/**
+ * Load documents from the API
+ */
+async function loadDocumentsFromApi() {
+    try {
+        // Import necessary services
+        const { default: FolderService } = await import('../services/folder-service.js');
+        const { default: ApiService } = await import('../services/api-service.js');
+        
+        // Get files from API
+        const response = await FolderService.getFiles();
+        
+        if (response.success && response.files) {
+            // Render the files to the grid
+            renderDocuments(response.files);
+        } else {
+            console.error('Error loading documents:', response);
+            // Show error message
+            alert('Error al cargar documentos.');
+        }
+    } catch (error) {
+        console.error('Error loading documents:', error);
+        alert('Error al cargar documentos.');
+    }
 }
 
 /**
@@ -74,6 +75,11 @@ function createDocumentElement(doc) {
     docElement.className = 'document-item';
     docElement.dataset.id = doc.id;
     
+    // Add certified class if the document is certified
+    if (doc.isCertified) {
+        docElement.classList.add('certified');
+    }
+    
     // Determine icon based on file type
     let iconSrc = '../resources/icons/file.png';
     
@@ -81,6 +87,15 @@ function createDocumentElement(doc) {
         <img src="${iconSrc}" alt="Documento" class="document-icon">
         <p>${doc.name}</p>
     `;
+    
+    // Add certification badge if certified
+    if (doc.isCertified) {
+        const badge = document.createElement('span');
+        badge.className = 'certified-badge';
+        badge.innerHTML = '<i class="bi bi-patch-check-fill"></i>';
+        badge.title = 'Documento certificado';
+        docElement.appendChild(badge);
+    }
     
     return docElement;
 }
@@ -114,19 +129,19 @@ function setupToolbarListeners() {
         });
     }
     
-    // Update document button
-    const updateButton = document.querySelector('.tool-button[title="Actualizar documento"]');
-    if (updateButton) {
-        updateButton.addEventListener('click', function() {
-            updateSelectedDocument();
-        });
-    }
-    
     // Download document button
     const downloadButton = document.querySelector('.tool-button[title="Descargar documento"]');
     if (downloadButton) {
         downloadButton.addEventListener('click', function() {
             downloadSelectedDocument();
+        });
+    }
+    
+    // Certify document button
+    const certifyButton = document.querySelector('.tool-button[title="Certificar documento"]');
+    if (certifyButton) {
+        certifyButton.addEventListener('click', function() {
+            certifySelectedDocument();
         });
     }
     
@@ -174,7 +189,7 @@ function updateSelectedDocument() {
 /**
  * Download the currently selected document
  */
-function downloadSelectedDocument() {
+async function downloadSelectedDocument() {
     const selectedDoc = document.querySelector('.document-item.selected');
     
     if (!selectedDoc) {
@@ -182,8 +197,86 @@ function downloadSelectedDocument() {
         return;
     }
     
-    console.log('Download document:', selectedDoc.dataset.id);
-    alert('Funcionalidad para descargar documento');
+    const fileId = selectedDoc.dataset.id;
+    
+    try {
+        // Import folder service
+        const { default: FolderService } = await import('../services/folder-service.js');
+        
+        // Call the download method
+        await FolderService.downloadFile(fileId);
+        console.log('Download document:', fileId);
+    } catch (error) {
+        console.error('Error downloading document:', error);
+        alert('Error al descargar el documento');
+    }
+}
+
+/**
+ * Certify the currently selected document
+ */
+async function certifySelectedDocument() {
+    const selectedDoc = document.querySelector('.document-item.selected');
+    
+    if (!selectedDoc) {
+        alert('Por favor selecciona un documento para certificar');
+        return;
+    }
+    
+    const fileId = selectedDoc.dataset.id;
+    const fileName = selectedDoc.querySelector('p').textContent;
+    
+    try {
+        // Show loading state
+        const certifyButton = document.querySelector('.tool-button[title="Certificar documento"]');
+        const originalIcon = certifyButton.innerHTML;
+        certifyButton.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+        certifyButton.disabled = true;
+        
+        // Import folder service
+        const { default: FolderService } = await import('../services/folder-service.js');
+        
+        console.log(`Sending certification request for file ID: ${fileId}, name: ${fileName}`);
+        
+        // Send certification request
+        const response = await FolderService.certifyFile(fileId, fileName);
+        
+        console.log('Certification response:', response);
+        
+        // Update UI to reflect certification status
+        if (response.isCertified) {
+            // Add certification visual indicator
+            selectedDoc.classList.add('certified');
+            // Add a small badge or icon to indicate certification
+            if (!selectedDoc.querySelector('.certified-badge')) {
+                const badge = document.createElement('span');
+                badge.className = 'certified-badge';
+                badge.innerHTML = '<i class="bi bi-patch-check-fill"></i>';
+                badge.title = 'Documento certificado';
+                selectedDoc.appendChild(badge);
+            }
+        } else {
+            // Remove certification visual indicator
+            selectedDoc.classList.remove('certified');
+            // Remove the badge if it exists
+            const badge = selectedDoc.querySelector('.certified-badge');
+            if (badge) {
+                badge.remove();
+            }
+        }
+        
+        // Show success message
+        alert(response.message);
+        
+    } catch (error) {
+        console.error('Error certifying document:', error);
+        alert(error.data?.message || 'Error al certificar el documento');
+    } finally {
+        // Restore button state
+        const certifyButton = document.querySelector('.tool-button[title="Certificar documento"]');
+        certifyButton.innerHTML = '<i class="bi bi-check-circle"></i>';
+        certifyButton.disabled = false;
+    }
 }
 
 /**
@@ -204,7 +297,7 @@ function transferSelectedDocument() {
 /**
  * Delete the currently selected document
  */
-function deleteSelectedDocument() {
+async function deleteSelectedDocument() {
     const selectedDoc = document.querySelector('.document-item.selected');
     
     if (!selectedDoc) {
@@ -213,7 +306,24 @@ function deleteSelectedDocument() {
     }
     
     if (confirm('¿Estás seguro de que quieres eliminar este documento?')) {
-        console.log('Delete document:', selectedDoc.dataset.id);
-        selectedDoc.remove();
+        try {
+            const fileId = selectedDoc.dataset.id;
+            
+            // Import folder service
+            const { default: FolderService } = await import('../services/folder-service.js');
+            
+            // Call the delete method
+            const response = await FolderService.deleteFile(fileId);
+            
+            if (response.success) {
+                // Remove from UI
+                selectedDoc.remove();
+            } else {
+                alert('Error al eliminar el documento');
+            }
+        } catch (error) {
+            console.error('Error deleting document:', error);
+            alert('Error al eliminar el documento');
+        }
     }
 }

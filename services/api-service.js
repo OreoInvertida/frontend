@@ -33,8 +33,13 @@ async function apiRequest(endpoint, options = {}, mockOverride = null) {
   // If using mocks, try to get mock data
   if (useMocks) {
     try {
-      const mockData = await import(`./mocks/${endpoint.replace(/\//g, '_')}.js`);
+      // Replace numeric segments with $fileId for mock file lookup
+      const mockEndpoint = endpoint.replace(/\/(\d+)(\/|$)/g, '/$fileId$2');
+      const mockData = await import(`./mocks/${mockEndpoint.replace(/\//g, '_')}.js`);
       console.log(`[MOCK] ${options.method || 'GET'} ${endpoint}`);
+      
+      // Add the original URL to options for the mock handler to extract IDs
+      options.url = endpoint;
       
       // Simulate network delay for realistic testing
       await new Promise(resolve => setTimeout(resolve, 300));

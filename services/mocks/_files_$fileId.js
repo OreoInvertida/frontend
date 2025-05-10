@@ -3,8 +3,8 @@
  * Handles DELETE requests for specific files
  */
 
-// Set to track deleted file IDs
-const deletedFileIds = new Set();
+// Import shared mock files collection
+import { mockFiles } from './_files.js';
 
 export default function(options) {
   // Extract fileId from the endpoint
@@ -12,10 +12,34 @@ export default function(options) {
   const urlParts = options.url?.split('/') || [];
   const fileId = urlParts[urlParts.length - 1];
   
+  // Handle GET request to get a specific file
+  if (!options.method || options.method === 'GET') {
+    // Find the file in the mock files collection
+    const file = mockFiles.find(file => file.id === fileId);
+    
+    if (!file) {
+      throw {
+        status: 404,
+        statusText: 'Not Found',
+        data: {
+          success: false,
+          message: `File with ID ${fileId} not found`
+        }
+      };
+    }
+    
+    return {
+      success: true,
+      file: {...file}
+    };
+  }
+  
   // Handle DELETE request to remove a file
   if (options.method === 'DELETE') {
-    // Check if file has already been deleted
-    if (deletedFileIds.has(fileId)) {
+    // Find the file in the mock files collection
+    const fileIndex = mockFiles.findIndex(file => file.id === fileId);
+    
+    if (fileIndex === -1) {
       throw {
         status: 404,
         statusText: 'Not Found',
@@ -26,13 +50,14 @@ export default function(options) {
       };
     }
     
-    // Mark file as deleted
-    deletedFileIds.add(fileId);
+    // Remove the file from the collection
+    const deletedFile = mockFiles.splice(fileIndex, 1)[0];
     
     return {
       success: true,
       message: `File ${fileId} deleted successfully`,
-      id: fileId
+      id: fileId,
+      file: deletedFile
     };
   }
   

@@ -15,7 +15,6 @@ function initOperatorsPage() {
     // Load initial data
     loadOperatorsData();
     loadCurrentOperator();
-    loadTransferHistory();
     
     // Setup event listeners
     setupFilterListeners();
@@ -86,119 +85,31 @@ function setupTransferListeners() {
 /**
  * Load operators data and render in the grid
  */
-function loadOperatorsData() {
-    // Mock data - would be replaced with API call
-    const operators = [
-        {
-            id: 'op1',
-            name: 'OREO-FRONT',
-            type: 'public',
-            description: 'Operador principal de carpeta ciudadana',
-            icon: 'building',
-            capabilities: [
-                { name: 'Documentos Personales', icon: 'file-earmark-person' },
-                { name: 'Solicitudes Entidades Públicas', icon: 'bank' },
-                { name: 'Compartir Documentos', icon: 'share' }
-            ],
-            stats: {
-                users: '5,000,000+',
-                documents: '25,000,000+',
-                availability: '99.9%'
-            },
-            isCurrent: true
-        },
-        {
-            id: 'op2',
-            name: 'DocuCloud',
-            type: 'private',
-            description: 'Solución de gestión documental en la nube',
-            icon: 'cloud',
-            capabilities: [
-                { name: 'Almacenamiento Ilimitado', icon: 'hdd' },
-                { name: 'OCR y Búsqueda de Texto', icon: 'search' },
-                { name: 'Firma Digital', icon: 'pen' }
-            ],
-            stats: {
-                users: '2,100,000+',
-                documents: '18,000,000+',
-                availability: '99.8%'
-            },
-            isCurrent: false
-        },
-        {
-            id: 'op3',
-            name: 'GobDigital',
-            type: 'public',
-            description: 'Operador oficial del gobierno nacional',
-            icon: 'bank',
-            capabilities: [
-                { name: 'Trámites Gubernamentales', icon: 'file-earmark-text' },
-                { name: 'Certificados Oficiales', icon: 'award' },
-                { name: 'Identificación Digital', icon: 'fingerprint' }
-            ],
-            stats: {
-                users: '8,500,000+',
-                documents: '40,000,000+',
-                availability: '99.5%'
-            },
-            isCurrent: false
-        },
-        {
-            id: 'op4',
-            name: 'SecureVault',
-            type: 'private',
-            description: 'Protección de documentos con cifrado avanzado',
-            icon: 'shield-lock',
-            capabilities: [
-                { name: 'Cifrado de Extremo a Extremo', icon: 'lock' },
-                { name: 'Autenticación Multifactor', icon: 'shield-check' },
-                { name: 'Acceso Biométrico', icon: 'fingerprint' }
-            ],
-            stats: {
-                users: '1,200,000+',
-                documents: '8,000,000+',
-                availability: '99.95%'
-            },
-            isCurrent: false
-        },
-        {
-            id: 'op5',
-            name: 'DocuMed',
-            type: 'private',
-            description: 'Especializado en historias clínicas y documentos médicos',
-            icon: 'hospital',
-            capabilities: [
-                { name: 'Historias Clínicas Digitales', icon: 'file-medical' },
-                { name: 'Confidencialidad Médica', icon: 'shield-plus' },
-                { name: 'Recetas Electrónicas', icon: 'prescription' }
-            ],
-            stats: {
-                users: '800,000+',
-                documents: '12,000,000+',
-                availability: '97.5%'
-            },
-            isCurrent: false
-        },
-        {
-            id: 'op6',
-            name: 'EduDocs',
-            type: 'public',
-            description: 'Gestión documental para instituciones educativas',
-            icon: 'mortarboard',
-            capabilities: [
-                { name: 'Certificados Académicos', icon: 'file-earmark-richtext' },
-                { name: 'Expedientes Estudiantiles', icon: 'person-vcard' },
-                { name: 'Títulos Digitales', icon: 'award' }
-            ],
-            stats: {
-                users: '1,500,000+',
-                documents: '9,000,000+',
-                availability: '98.2%'
-            },
-            isCurrent: false
+async function loadOperatorsData() {
+    try {
+        // Import the operator service
+        const { default: OperatorService } = await import('../services/operator-service.js');
+        
+        // Get operators from API
+        const response = await OperatorService.getOperators();
+        
+        if (response.success && response.operators) {
+            renderOperators(response.operators);
+        } else {
+            console.error('Error loading operators:', response);
+            alert('Error al cargar la lista de operadores.');
         }
-    ];
-    
+    } catch (error) {
+        console.error('Error loading operators:', error);
+        alert('Error al cargar la lista de operadores.');
+    }
+}
+
+/**
+ * Render operators in the grid
+ * @param {Array} operators - Array of operator objects 
+ */
+function renderOperators(operators) {
     const operatorsGrid = document.getElementById('operatorsGrid');
     if (!operatorsGrid) return;
     
@@ -237,22 +148,29 @@ function loadOperatorsData() {
 /**
  * Load current operator information
  */
-function loadCurrentOperator() {
-    // Mock data - would be replaced with API call
-    const currentOperator = {
-        id: 'op1',
-        name: 'OREO-FRONT',
-        type: 'public',
-        status: 'active',
-        icon: 'building',
-        since: '2023-01-15',
-        stats: {
-            documents: 154,
-            requests: 23,
-            entities: 12
+async function loadCurrentOperator() {
+    try {
+        // Import the operator service
+        const { default: OperatorService } = await import('../services/operator-service.js');
+        
+        // Get current operator from API
+        const response = await OperatorService.getCurrentOperator();
+        
+        if (response.success && response.operator) {
+            renderCurrentOperator(response.operator);
+        } else {
+            console.error('Error loading current operator:', response);
         }
-    };
-    
+    } catch (error) {
+        console.error('Error loading current operator:', error);
+    }
+}
+
+/**
+ * Render current operator information
+ * @param {Object} currentOperator - Current operator data object
+ */
+function renderCurrentOperator(currentOperator) {
     const currentOperatorElement = document.getElementById('currentOperator');
     if (!currentOperatorElement) return;
     
@@ -287,74 +205,6 @@ function loadCurrentOperator() {
             </div>
         </div>
     `;
-}
-
-/**
- * Load transfer history data
- */
-function loadTransferHistory() {
-    // Mock data - would be replaced with API call
-    const transferHistory = [
-        {
-            date: '2023-01-15',
-            fromOperator: 'DocuCloud',
-            toOperator: 'OREO-FRONT',
-            status: 'completed'
-        },
-        {
-            date: '2022-08-22',
-            fromOperator: 'GobDigital',
-            toOperator: 'DocuCloud',
-            status: 'completed'
-        }
-    ];
-    
-    const transferHistoryBody = document.getElementById('transferHistoryBody');
-    if (!transferHistoryBody) return;
-    
-    transferHistoryBody.innerHTML = '';
-    
-    if (transferHistory.length === 0) {
-        const emptyRow = document.createElement('tr');
-        emptyRow.innerHTML = '<td colspan="4" class="text-center">No hay historial de transferencias</td>';
-        transferHistoryBody.appendChild(emptyRow);
-        return;
-    }
-    
-    transferHistory.forEach(transfer => {
-        const row = document.createElement('tr');
-        
-        // Create status badge
-        let statusBadge = '';
-        switch(transfer.status) {
-            case 'completed':
-                statusBadge = '<span class="status-badge status-completed">Completada</span>';
-                break;
-            case 'pending':
-                statusBadge = '<span class="status-badge status-pending">Pendiente</span>';
-                break;
-            case 'failed':
-                statusBadge = '<span class="status-badge status-failed">Fallida</span>';
-                break;
-        }
-        
-        // Format date
-        const date = new Date(transfer.date);
-        const dateFormatted = date.toLocaleDateString('es-CO', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-        
-        row.innerHTML = `
-            <td>${dateFormatted}</td>
-            <td>${transfer.fromOperator}</td>
-            <td>${transfer.toOperator}</td>
-            <td>${statusBadge}</td>
-        `;
-        
-        transferHistoryBody.appendChild(row);
-    });
 }
 
 /**
@@ -500,7 +350,7 @@ function showTransferConfirmation() {
 /**
  * Submit transfer request
  */
-function submitTransferRequest() {
+async function submitTransferRequest() {
     const confirmTransferBtn = document.getElementById('confirmTransferBtn');
     if (!confirmTransferBtn) return;
     
@@ -508,63 +358,24 @@ function submitTransferRequest() {
     
     if (!operatorId) return;
     
-    // In a real app, this would send data to your API
-    console.log('Submitting transfer request to operator:', operatorId);
-    
-    // Hide the confirmation modal
-    bootstrap.Modal.getInstance(document.getElementById('transferConfirmationModal')).hide();
-    
-    // Show success message
-    alert('Su solicitud de transferencia ha sido enviada. Recibirá una notificación cuando el proceso esté listo para completarse.');
-    
-    // Reload transfer history to show the pending transfer
-    // This would be triggered by API response in a real app
-    // For demo purposes, we'll just add a new pending transfer
-    addPendingTransfer(operatorId);
-}
-
-/**
- * Add a pending transfer to the transfer history
- * @param {string} operatorId - ID of the target operator
- */
-function addPendingTransfer(operatorId) {
-    // Find the operator name based on the ID
-    const operators = [
-        { id: 'op1', name: 'OREO-FRONT' },
-        { id: 'op2', name: 'DocuCloud' },
-        { id: 'op3', name: 'GobDigital' },
-        { id: 'op4', name: 'SecureVault' },
-        { id: 'op5', name: 'DocuMed' },
-        { id: 'op6', name: 'EduDocs' }
-    ];
-    
-    const currentOperator = 'OREO-FRONT';
-    const targetOperator = operators.find(op => op.id === operatorId)?.name || 'Operador Desconocido';
-    
-    // Current date formatted
-    const today = new Date();
-    const dateFormatted = today.toLocaleDateString('es-CO', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-    
-    // Create a new row for the transfer history table
-    const transferHistoryBody = document.getElementById('transferHistoryBody');
-    if (!transferHistoryBody) return;
-    
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-        <td>${dateFormatted}</td>
-        <td>${currentOperator}</td>
-        <td>${targetOperator}</td>
-        <td><span class="status-badge status-pending">Pendiente</span></td>
-    `;
-    
-    // Add the new row at the top of the table
-    if (transferHistoryBody.firstChild) {
-        transferHistoryBody.insertBefore(newRow, transferHistoryBody.firstChild);
-    } else {
-        transferHistoryBody.appendChild(newRow);
+    try {
+        // Import the operator service
+        const { default: OperatorService } = await import('../services/operator-service.js');
+        
+        // Call the transfer request method
+        const response = await OperatorService.requestTransfer(operatorId);
+        
+        if (response.success) {
+            // Hide the confirmation modal
+            bootstrap.Modal.getInstance(document.getElementById('transferConfirmationModal')).hide();
+            
+            // Show success message
+            alert(response.message || 'Su solicitud de transferencia ha sido enviada. Recibirá una notificación cuando el proceso esté listo para completarse.');
+        } else {
+            alert('Error al enviar la solicitud de transferencia');
+        }
+    } catch (error) {
+        console.error('Error submitting transfer request:', error);
+        alert(error.data?.message || 'Error al enviar la solicitud de transferencia');
     }
 }
