@@ -3,7 +3,8 @@
  * Handles login form functionality
  */
 
-import { 
+import ApiService from '../services/api-service.js';
+import {
     setupPasswordToggle,
     setupPasswordValidation,
     isValidPassword
@@ -20,10 +21,10 @@ document.addEventListener('DOMContentLoaded', function() {
 function initLoginPage() {
     // Setup password toggle functionality
     setupPasswordToggle();
-    
+
     // Password validation with requirements feedback for login page
     // setupPasswordValidation('password');
-    
+
     // Setup form submission
     setupLoginForm();
 }
@@ -36,27 +37,27 @@ function setupLoginForm() {
     const passwordInput = document.getElementById('password');
     const submitButton = document.querySelector('.login-button');
     const emailInput = document.getElementById('email');
-    
+
     if (form) {
         form.addEventListener('submit', function(event) {
             event.preventDefault();
-            
+
             // Show loading state
             submitButton.disabled = true;
             submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Iniciando sesión...';
-            
+
             // Collect form data
             const credentials = {
                 email: emailInput.value,
                 password: passwordInput.value
             };
-            
+
             // Send login request to the server
             loginUser(credentials)
                 .then(response => {
                     // Handle successful login
                     console.log('Login successful', response);
-                    
+
                     // Import AuthService to store the tokens
                     import('../services/auth-service.js').then(({ default: AuthService }) => {
                         // Store authentication tokens using the new format
@@ -67,7 +68,7 @@ function setupLoginForm() {
                             // Legacy token format (backward compatibility)
                             localStorage.setItem('auth_token', response.token);
                         }
-                        
+
                         // Redirect to folder page
                         window.location.href = 'folder-page.html';
                     });
@@ -75,7 +76,7 @@ function setupLoginForm() {
                 .catch(error => {
                     // Handle login error
                     console.error('Login failed', error);
-                    
+
                     // Show error message to user
                     showLoginError(error.message || 'Error al iniciar sesión. Por favor intente nuevamente.');
                 })
@@ -95,17 +96,9 @@ function setupLoginForm() {
  */
 async function loginUser(credentials) {
     try {
-        // Import the ApiService to use the mocks properly
-        const { default: ApiService } = await import('../services/api-service.js');
-        
-        // Ensure credentials have the correct format
-        const loginData = {
-            "email": credentials.email,
-            "password": credentials.password
-        };
-        
         // Use ApiService with POST method
-        const response = await ApiService.post('/auth/login', loginData);
+        const response = await ApiService.post('/auth/login', credentials);
+        console.log(response)
         return response;
     } catch (error) {
         console.error('Login request failed:', error);
@@ -120,18 +113,18 @@ async function loginUser(credentials) {
 function showLoginError(message) {
     // Check if error alert already exists
     let errorAlert = document.querySelector('.login-error');
-    
+
     // If error alert doesn't exist, create it
     if (!errorAlert) {
         errorAlert = document.createElement('div');
         errorAlert.className = 'alert alert-danger login-error mt-3';
         errorAlert.role = 'alert';
-        
+
         // Get form and insert error alert after it
         const form = document.querySelector('.login-form');
         form.insertAdjacentElement('afterbegin', errorAlert);
     }
-    
+
     // Update error message
     errorAlert.textContent = message;
 }
