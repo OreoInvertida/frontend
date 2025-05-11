@@ -1,5 +1,4 @@
 const constants = require('./utilities/constants')
-const localStorage = require('./local_storage')
 
 // Configuration
 const API_CONFIG = {
@@ -8,8 +7,9 @@ const API_CONFIG = {
 
   // Default headers for all requests
   defaultHeaders: {
+    'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*'
+    'Accept': 'application/json',
   }
 };
 
@@ -23,13 +23,13 @@ const API_CONFIG = {
 async function apiRequest(endpoint, options = {}) {
   const requestOptions = {
     method: options.method || 'GET',
-    headers: { ...API_CONFIG.defaultHeaders, ...options.headers },
-    ...options
+    headers: API_CONFIG.defaultHeaders,
+    body: options.body,
   };
 
   // Add auth token if available with the token_type
-  const token = localStorage.getItem('auth_token');
-  const tokenType = localStorage.getItem('token_type');
+  const token = options.auth_token;
+  const tokenType = options.token_type;
   if (token && tokenType) {
     requestOptions.headers['Authorization'] = `${tokenType} ${token}`;
   } else if (token) {
@@ -37,14 +37,8 @@ async function apiRequest(endpoint, options = {}) {
     requestOptions.headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // Create the request with timeout
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
-  requestOptions.signal = controller.signal;
-
   try {
     const response = await fetch(constants.API_BASE_URL + endpoint, requestOptions);
-    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -55,15 +49,12 @@ async function apiRequest(endpoint, options = {}) {
       };
     }
 
-    // Parse response as JSON (if possible)
-    return await response.json().catch(() => ({}));
+    return response;
   } catch (error) {
-    clearTimeout(timeoutId);
-
     // Handle abort error (timeout)
     if (error.name === 'AbortError') {
       throw {
-        status: 0,
+        status: 500,
         statusText: 'Request timeout',
         data: { message: `Request to ${endpoint} timed out after ${API_CONFIG.timeout}ms` }
       };

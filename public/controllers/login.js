@@ -10,7 +10,7 @@ import {
     isValidPassword
 } from '../utilities/form-utils.js';
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize the login page components
     initLoginPage();
 });
@@ -39,7 +39,7 @@ function setupLoginForm() {
     const emailInput = document.getElementById('email');
 
     if (form) {
-        form.addEventListener('submit', function(event) {
+        form.addEventListener('submit', function (event) {
             event.preventDefault();
 
             // Show loading state
@@ -57,7 +57,9 @@ function setupLoginForm() {
                 .then(response => {
                     // Handle successful login
                     console.log('Login successful', response);
-
+                    localStorage.setItem('auth_token', response.access_token);
+                    localStorage.setItem('token_type', response.token_type);
+                    localStorage.setItem('user_id', decodeJwtToken(response.access_token).payload.sub);
                     // Import AuthService to store the tokens
                     import('../services/auth-service.js').then(({ default: AuthService }) => {
                         // Store authentication tokens using the new format
@@ -98,8 +100,7 @@ async function loginUser(credentials) {
     try {
         // Use ApiService with POST method
         const response = await ApiService.post('/auth/login', credentials);
-        console.log(response)
-        return response;
+        return response.json();
     } catch (error) {
         console.error('Login request failed:', error);
         throw error;
@@ -127,4 +128,15 @@ function showLoginError(message) {
 
     // Update error message
     errorAlert.textContent = message;
+}
+
+function decodeJwtToken(token) {
+    const [header, payload, signature] = token.split('.');
+    const decodedHeader = JSON.parse(atob(header));
+    const decodedPayload = JSON.parse(atob(payload));
+    return {
+        header: decodedHeader,
+        payload: decodedPayload,
+        signature: signature
+    };
 }

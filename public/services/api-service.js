@@ -25,10 +25,7 @@ export const ApiService = {
    * @returns {Promise} - Promise resolving to the API response
    */
   async post(endpoint, data, options = {}) {
-    const isFormData = data instanceof FormData;
-    const headers = isFormData
-      ? {} // Don't set Content-Type for FormData, let the browser set it with boundary
-      : { 'Content-Type': 'application/json' };
+    const headers = { 'Content-Type': 'application/json' };
 
     console.log('ApiService.post - Endpoint received:', endpoint);
 
@@ -36,7 +33,7 @@ export const ApiService = {
       ...options,
       headers: { ...headers, ...options.headers },
       method: 'POST',
-      body: isFormData ? data : JSON.stringify(data)
+      body: JSON.stringify(data)
     });
   },
 
