@@ -25,15 +25,19 @@ function initFolderPage() {
 async function loadDocumentsFromApi() {
     try {
         // Import necessary services
-        const { default: FolderService } = await import('../services/folder-service.js');
         const { default: ApiService } = await import('../services/api-service.js');
         
         // Get files from API
-        const response = await FolderService.getFiles();
+        const response = await ApiService.get('/documents/metadata/' + localStorage.getItem('user_id'), {
+            headers: {
+                'auth_token': localStorage.getItem('auth_token'),
+                'token_type': localStorage.getItem('token_type'),
+            }
+        });
         
-        if (response.success && response.files) {
+        if (response.success && response.items) {
             // Render the files to the grid
-            renderDocuments(response.files);
+            renderDocuments(response.items);
         } else {
             console.error('Error loading documents:', response);
             // Show error message

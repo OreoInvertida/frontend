@@ -26,7 +26,24 @@ app.post('/auth/login', async (req, res) => {
   }
 })
 
-
+app.get('/documents/metadata/:user_id', async (req, res) => {
+  try {
+    const response = await apiRequest(`/documents/metadata/${req.params.user_id}`, {
+      auth_token: req.headers['auth_token'],
+      token_type: req.headers['token_type'],
+      method: 'GET',
+    });
+    
+    const data = await response.json();
+    // Forward the API response to the client
+    return res.status(response.status).json(data);
+  } catch (error) {
+    console.error('Metadata error:', error);
+    return res.status(error.status || 500).json({
+      message: error.message || 'Internal server error'
+    });
+  }
+})
 
 
 app.listen(port, () => {
