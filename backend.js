@@ -8,7 +8,7 @@ const API_CONFIG = {
   // Default headers for all requests
   defaultHeaders: {
     'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json',
+    'content-type': 'application/json',
     'Accept': 'application/json',
   }
 };
@@ -23,7 +23,7 @@ const API_CONFIG = {
 async function apiRequest(endpoint, options = {}) {
   const requestOptions = {
     method: options.method || 'GET',
-    headers: API_CONFIG.defaultHeaders,
+    headers: {...API_CONFIG.defaultHeaders, ...options.headers},
     body: options.body,
   };
 

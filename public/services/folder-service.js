@@ -20,22 +20,37 @@ export const FolderService = {
    * @param {Object} metadata - Additional metadata for the file
    * @returns {Promise} - Promise resolving to the uploaded file data
    */
-  async uploadFile(file, metadata = {}) {
-    // Create form data for file upload
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    // Add metadata as JSON
-    if (Object.keys(metadata).length > 0) {
-      formData.append('metadata', JSON.stringify(metadata));
-    }
-    
-    return ApiService.post('/files', formData, {
-      // Don't set Content-Type header, it will be set automatically with boundary
-      headers: {},
-      // Don't stringify FormData
-      body: formData
-    });
+  // Add this method to your FolderService in folder-service.js
+  async uploadFile(formData) {
+      const userId = localStorage.getItem('user_id');
+      const filename = formData.get('name');
+      try {
+          const response = await fetch(`/documents/doc/${userId}/${filename}`, {
+              method: 'PUT',
+              headers: {
+                  'auth_token': localStorage.getItem('auth_token'),
+                  'token_type': localStorage.getItem('token_type')
+              },
+              body: formData
+          });
+          
+          const data = await response.json();
+          
+          if (!response.ok) {
+              throw { status: response.status, data };
+          }
+          
+          return {
+              success: true,
+              ...data
+          };
+      } catch (error) {
+          console.error('Error uploading file:', error);
+          return {
+              success: false,
+              message: error.data?.message || 'Error uploading file'
+          };
+      }
   },
   
   /**

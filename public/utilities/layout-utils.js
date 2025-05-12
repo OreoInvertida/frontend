@@ -198,17 +198,17 @@ function logout() {
         // Call logout method
         AuthService.logout().then(() => {
             // Redirect to login page
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
         }).catch(error => {
             console.error('Error during logout:', error);
             // Redirect anyway
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
         });
     }).catch(error => {
         console.error('Error importing AuthService:', error);
         // Fallback logout
         localStorage.removeItem('auth_token');
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     });
 }
 

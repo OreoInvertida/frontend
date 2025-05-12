@@ -1,9 +1,13 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const apiRequest = require('./backend')
+const multer = require('multer')
+const fs = require('fs')
+const path = require('path')
+const FormData = require('form-data')
 
 const app = express()
-const port = 3000
+const port = 8080
 app.use(bodyParser.json())
 app.use(express.static('public'))
 
@@ -45,6 +49,71 @@ app.get('/documents/metadata/:user_id', async (req, res) => {
   }
 })
 
+
+// Configure multer for temporary file storage
+const upload = multer({ 
+  dest: 'temp-uploads/',
+  fileFilter: (req, file, cb) => {
+    // Check file type if needed
+    const allowedTypes = ['.jpg', '.jpeg', '.png', '.pdf'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedTypes.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only jpg, jpeg, png, and pdf files are allowed.'));
+    }
+  }
+})
+
+// Modified route to handle file uploads
+app.put('/documents/doc/:user_id/:filename', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // Create form data for the API request
+    const formData = new FormData();
+    
+    // Add file to form data
+      formData.append('file', fs.createReadStream(req.file.path));
+    
+    console.log(`>>>>> ${req.params.user_id} ${req.params.filename}`);
+    // Make API request
+    const response = await apiRequest(`/documents/doc/${req.params.user_id}/${req.params.filename}`, {
+      auth_token: req.headers['auth_token'],
+      token_type: req.headers['token_type'],
+      method: 'PUT',
+      body: formData,
+      headers: {
+         ...formData.getHeaders() // Use the headers from FormData including content-type with boundary
+      }
+    });
+    
+    const data = await response.json();
+    
+    // Clean up temp file
+    fs.unlinkSync(req.file.path);
+    
+    // Forward the API response to the client
+    return res.status(response.status).json(data);
+  } catch (error) {
+    console.error('Upload error:', error);
+    
+    // Clean up temp file if it exists
+    if (req.file && req.file.path) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (unlinkError) {
+        console.error('Error deleting temp file:', unlinkError);
+      }
+    }
+    
+    return res.status(error.status || 500).json({
+      message: error.message || 'Internal server error'
+    });
+  }
+})
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`)

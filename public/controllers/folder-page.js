@@ -167,9 +167,126 @@ function setupToolbarListeners() {
  * Show dialog to add a new document
  */
 function showAddDocumentDialog() {
-    console.log('Add document dialog');
-    // In a real application, this would open a file upload dialog
-    alert('Funcionalidad para agregar documento');
+    // Create modal HTML using Bootstrap classes
+    const modalHTML = `
+        <div class="modal fade" id="addDocumentModal" tabindex="-1" aria-labelledby="addDocumentModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addDocumentModalLabel">Agregar Documento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="upload-form">
+                            <div class="mb-3">
+                                <label for="document-name" class="form-label">Nombre del documento</label>
+                                <input type="text" class="form-control" id="document-name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="document-file" class="form-label">Archivo</label>
+                                <input type="file" class="form-control" id="document-file" accept=".jpg,.jpeg,.png,.pdf" required>
+                                <div class="form-text">Formatos permitidos: .jpg, .jpeg, .png, .pdf</div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="upload-button">Subir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add modal to body if it doesn't exist
+    if (!document.getElementById('addDocumentModal')) {
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+
+    // Get the modal element
+    const modalElement = document.getElementById('addDocumentModal');
+    
+    // Initialize the Bootstrap modal
+    const modal = new bootstrap.Modal(modalElement);
+    
+    // Show the modal
+    modal.show();
+    
+    // Add event listener for upload button
+    const uploadButton = document.getElementById('upload-button');
+    uploadButton.addEventListener('click', async () => {
+        const nameInput = document.getElementById('document-name');
+        const fileInput = document.getElementById('document-file');
+        
+        // Form validation
+        if (!nameInput.value.trim()) {
+            alert('Por favor ingrese un nombre para el documento');
+            return;
+        }
+        
+        if (!fileInput.files || fileInput.files.length === 0) {
+            alert('Por favor seleccione un archivo');
+            return;
+        }
+        
+        const file = fileInput.files[0];
+        
+        // Check file extension
+        const allowedExtensions = ['.jpg', '.jpeg', '.png', '.pdf'];
+        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+        
+        if (!allowedExtensions.includes(fileExtension)) {
+            alert('Formato de archivo no válido. Por favor seleccione un archivo .jpg, .jpeg, .png o .pdf');
+            return;
+        }
+        
+        try {
+            // Show loading state
+            uploadButton.disabled = true;
+            uploadButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Subiendo...';
+            
+            // Import folder service
+            const { default: FolderService } = await import('../services/folder-service.js');
+            
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('name', nameInput.value.trim());
+            
+            // Send upload request
+            const response = await FolderService.uploadFile(formData);
+            
+            if (response.success) {
+                // Close modal
+                modal.hide();
+                
+                // Refresh document list
+                loadDocumentsFromApi();
+                
+                // Show success message
+                alert('Documento subido exitosamente');
+            } else {
+                alert(response.message || 'Error al subir el documento');
+            }
+        } catch (error) {
+            console.error('Error uploading document:', error);
+            alert('Error al subir el documento: ' + (error.message || 'Error desconocido'));
+        } finally {
+            // Reset button state
+            uploadButton.disabled = false;
+            uploadButton.textContent = 'Subir';
+        }
+    });
+    
+    // Clean up when modal is hidden
+    modalElement.addEventListener('hidden.bs.modal', function() {
+        // Remove event listener from upload button to prevent duplicates
+        const uploadButton = document.getElementById('upload-button');
+        uploadButton.replaceWith(uploadButton.cloneNode(true));
+        
+        // Reset form
+        document.getElementById('upload-form').reset();
+    });
 }
 
 /**
