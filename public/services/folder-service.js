@@ -14,16 +14,20 @@ export const FolderService = {
     return ApiService.get('/files');
   },
   
-  /**
-   * Upload a file to the main folder
-   * @param {File} file - File to upload
-   * @param {Object} metadata - Additional metadata for the file
-   * @returns {Promise} - Promise resolving to the uploaded file data
-   */
+/**
+ * Upload a file to the main folder
+ * @param {FormData} formData - FormData containing file and name
+ * @returns {Promise} - Promise resolving to the uploaded file data
+ */
   // Add this method to your FolderService in folder-service.js
   async uploadFile(formData) {
       const userId = localStorage.getItem('user_id');
       const filename = formData.get('name');
+      const file = formData.get('file');
+
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+
       try {
           const response = await fetch(`/documents/doc/${userId}/${filename}`, {
               method: 'PUT',
@@ -31,7 +35,7 @@ export const FolderService = {
                   'auth_token': localStorage.getItem('auth_token'),
                   'token_type': localStorage.getItem('token_type')
               },
-              body: formData
+              body: uploadFormData
           });
           
           const data = await response.json();
