@@ -35,9 +35,10 @@ async function loadDocumentsFromApi() {
             }
         });
         
-        if (response.success && response.items) {
+        const page = await response.json();
+        if (response.status === 200) {
             // Render the files to the grid
-            renderDocuments(response.items);
+            renderDocuments(page.items);
         } else {
             console.error('Error loading documents:', response);
             // Show error message
@@ -78,22 +79,18 @@ function createDocumentElement(doc) {
     const docElement = document.createElement('div');
     docElement.className = 'document-item';
     docElement.dataset.id = doc.id;
-    
-    // Add certified class if the document is certified
-    if (doc.isCertified) {
-        docElement.classList.add('certified');
-    }
-    
+        
     // Determine icon based on file type
-    let iconSrc = '../resources/icons/file.png';
+    const iconSrc = '../resources/icons/file.png';
     
     docElement.innerHTML = `
         <img src="${iconSrc}" alt="Documento" class="document-icon">
-        <p>${doc.name}</p>
+        <p>${doc.filename}</p>
     `;
     
     // Add certification badge if certified
     if (doc.isCertified) {
+        docElement.classList.add('certified');
         const badge = document.createElement('span');
         badge.className = 'certified-badge';
         badge.innerHTML = '<i class="bi bi-patch-check-fill"></i>';
