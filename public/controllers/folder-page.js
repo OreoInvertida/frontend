@@ -79,7 +79,13 @@ function createDocumentElement(doc) {
     const docElement = document.createElement('div');
     docElement.className = 'document-item';
     docElement.dataset.id = doc.id;
-        
+    
+    if (doc.path) {
+        docElement.dataset.path = doc.path;
+    } else {
+        // Set a default path or empty string if not available
+        docElement.dataset.path = '';
+    }
     // Determine icon based on file type
     const iconSrc = '../resources/icons/file.png';
     
@@ -89,7 +95,7 @@ function createDocumentElement(doc) {
     `;
     
     // Add certification badge if certified
-    if (doc.isCertified) {
+    if (doc.signed) {
         docElement.classList.add('certified');
         const badge = document.createElement('span');
         badge.className = 'certified-badge';
@@ -337,32 +343,33 @@ async function certifySelectedDocument() {
     const selectedDoc = document.querySelector('.document-item.selected');
     
     if (!selectedDoc) {
-        alert('Por favor selecciona un documento para certificar');
+        alert('Por favor selecciona un documento para solicitar su certificación');
         return;
     }
-    
-    const fileId = selectedDoc.dataset.id;
-    const fileName = selectedDoc.querySelector('p').textContent;
+    if (selectedDoc.classList.contains('certified')) {
+        alert('El documento ya está certificado');
+        return;
+    }
+    const fileid = selectedDoc.dataset.id;
+    const filename = selectedDoc.querySelector('p').textContent;
+    const filepath = selectedDoc.dataset.path;
     
     try {
         // Show loading state
         const certifyButton = document.querySelector('.tool-button[title="Certificar documento"]');
-        const originalIcon = certifyButton.innerHTML;
         certifyButton.innerHTML = '<i class="bi bi-hourglass-split"></i>';
         certifyButton.disabled = true;
         
         // Import folder service
         const { default: FolderService } = await import('../services/folder-service.js');
         
-        console.log(`Sending certification request for file ID: ${fileId}, name: ${fileName}`);
-        
         // Send certification request
-        const response = await FolderService.certifyFile(fileId, fileName);
+        const response = await FolderService.certifyFile(fileid, filename, filepath);
         
         console.log('Certification response:', response);
         
         // Update UI to reflect certification status
-        if (response.isCertified) {
+        if (response.ok) {
             // Add certification visual indicator
             selectedDoc.classList.add('certified');
             // Add a small badge or icon to indicate certification
@@ -373,19 +380,8 @@ async function certifySelectedDocument() {
                 badge.title = 'Documento certificado';
                 selectedDoc.appendChild(badge);
             }
-        } else {
-            // Remove certification visual indicator
-            selectedDoc.classList.remove('certified');
-            // Remove the badge if it exists
-            const badge = selectedDoc.querySelector('.certified-badge');
-            if (badge) {
-                badge.remove();
-            }
         }
-        
-        // Show success message
-        alert(response.message);
-        
+        loadDocumentsFromApi();        
     } catch (error) {
         console.error('Error certifying document:', error);
         alert(error.data?.message || 'Error al certificar el documento');

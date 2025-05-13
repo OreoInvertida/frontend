@@ -97,9 +97,16 @@ export const FolderService = {
    * @param {string} name - Name of the document
    * @returns {Promise} - Promise resolving to certification result
    */
-  async certifyFile(fileId, name) {
-    return ApiService.post(`/files/${fileId}/certify`, {
-      name: name
+  async certifyFile(fileid, filename, filepath) {
+    return ApiService.post(`/document/certify`, {
+          document_id: fileid,
+          document_name: filename,
+          document_path: filepath
+    }, {
+      headers: {
+        'auth_token': localStorage.getItem('auth_token'),
+        'token_type': localStorage.getItem('token_type')
+      }
     });
   }
 };

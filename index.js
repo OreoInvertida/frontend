@@ -115,6 +115,26 @@ app.put('/documents/doc/:user_id/:filename', upload.single('file'), async (req, 
   }
 })
 
+app.post('/document/certify', async (req, res) => {
+  try {
+    const response = await apiRequest('/orchestrator/authenticate_doc', {
+      auth_token: req.headers['auth_token'],
+      token_type: req.headers['token_type'],
+      method: 'POST',
+      body: JSON.stringify(req.body),
+    });
+    
+    const data = await response.json();
+    // Forward the API response to the client
+    return res.status(response.status).json(data);
+  } catch (error) {
+    console.error('¡Bendito sea! ', error);
+    return res.status(error.status || 500).json({
+      message: error.message || 'Internal server error'
+    });
+  }
+})
+  
 app.listen(port, () => {
   console.log(`Listening on port ${port}`)
 })
