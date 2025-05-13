@@ -77,23 +77,8 @@ export const FolderService = {
    * @returns {Promise} - Promise resolving to file download URL or blob
    */
   async downloadFile(fileId) {
-    // Get download URL or direct file data
-    const result = await ApiService.get(`/files/${fileId}/download`);
-    
-    if (result.downloadUrl) {
-      // If API returns a URL, use it
-      return result.downloadUrl;
-    } else {
-      // Otherwise, we need to handle file download differently
-      // This would typically be a blob response
-      const response = await fetch(`${ApiService.baseUrl}/files/${fileId}/download`, {
-        headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('auth_token')}`
-        }
-      });
-      
-      return await response.blob();
-    }
+    //TODO: Implement download logic
+    return
   },
   
   /**

@@ -118,9 +118,12 @@ function renderOperators(operators) {
     operators.forEach(operator => {
         operator.id = operator._id;
         const operatorCard = document.createElement('div');
-        const isCurrent = operator.id == '67ff23d72090cf00151f0175';
+        operator.isCurrent = operator.id == '67ff23d72090cf00151f0175' ? true : false;
+        const isCurrent = operator.isCurrent;
         operatorCard.className = `operator-card ${isCurrent ? 'current' : ''}`;
-        operatorCard.dataset.id = operator.id;
+        operatorCard.operatorName = operator.operatorName;
+        operatorCard.id = operator.id;
+        operatorCard.transferAPI = operator.transferAPI;
         operator.capabilities = [
             { name: 'Documentos Personales', icon: 'file-earmark-person' },
             { name: 'Solicitudes Entidades Públicas', icon: 'bank' },
@@ -281,7 +284,7 @@ function showOperatorDetails(operator) {
     }
     
     // Set current operator status
-    const requestTransferBtn = document.getElementById('requestTransferBtn');
+    const requestTransferBtn = document.getElementById('requestTransferBtn');    
     if (requestTransferBtn) {
         if (operator.isCurrent) {
             requestTransferBtn.disabled = true;
@@ -347,7 +350,7 @@ function showTransferConfirmation() {
 async function submitTransferRequest() {
     const confirmTransferBtn = document.getElementById('confirmTransferBtn');
     if (!confirmTransferBtn) return;
-    
+    console.log('>>>> Confirm transfer button clicked');
     const operatorId = confirmTransferBtn.dataset.operatorId;
     
     if (!operatorId) return;
@@ -359,7 +362,7 @@ async function submitTransferRequest() {
         // Call the transfer request method
         const response = await OperatorService.requestTransfer(operatorId);
         
-        if (response.success) {
+        if (response.ok) {
             // Hide the confirmation modal
             bootstrap.Modal.getInstance(document.getElementById('transferConfirmationModal')).hide();
             
