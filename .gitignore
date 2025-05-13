@@ -1,7 +1,8 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
-# temp files
-/temp-uploads
+# Ignorar todos los archivos dentro de temp-uploads, excepto .gitkeep
+temp-uploads/*
+!temp-uploads/.gitkeep
 
 # compiled output
 /dist
