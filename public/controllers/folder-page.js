@@ -26,12 +26,12 @@ async function loadDocumentsFromApi() {
     try {
         // Import necessary services
         const { default: ApiService } = await import('../services/api-service.js');
-        
+        const token = sessionStorage.getItem('auth_token');
+        const type = sessionStorage.getItem('token_type') || 'Bearer';
         // Get files from API
         const response = await ApiService.get('/documents/metadata/' + sessionStorage.getItem('user_id'), {
             headers: {
-                'auth_token': sessionStorage.getItem('auth_token'),
-                'token_type': sessionStorage.getItem('token_type'),
+                'Authorization': `${type} ${token}`,
             }
         });
         

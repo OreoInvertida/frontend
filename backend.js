@@ -31,14 +31,17 @@ async function apiRequest(endpoint, options = {}) {
    delete requestOptions.headers['content-type']; 
   } 
   
-  // Add auth token if available with the token_type
+  // Add Authorization header only if it's not already defined
   const token = options.auth_token;
   const tokenType = options.token_type;
-  if (token && tokenType) {
-    requestOptions.headers['Authorization'] = `${tokenType} ${token}`;
-  } else if (token) {
-    // Fallback for backward compatibility
-    requestOptions.headers['Authorization'] = `Bearer ${token}`;
+  const authHeader = options.headers?.Authorization;
+
+  if (!authHeader) {
+    if (token && tokenType) {
+      requestOptions.headers['Authorization'] = `${tokenType} ${token}`;
+    } else if (token) {
+      requestOptions.headers['Authorization'] = `Bearer ${token}`;
+    }
   }
 
   try {

@@ -30,11 +30,16 @@ app.post('/auth/login', async (req, res) => {
 })
 
 app.get('/documents/metadata/:user_id', async (req, res) => {
+  const authHeader = req.headers['authorization'];
+  console.log('Headers recibidos desde el navegador →', req.headers);  // 👈 Añade esto
+  console.log('Auth Headerr recibido desde el navegador →', req.headers['authorization']);  // 👈 Añade esto
   try {
+    
     const response = await apiRequest(`/documents/metadata/${req.params.user_id}`, {
-      auth_token: req.headers['auth_token'],
-      token_type: req.headers['token_type'],
       method: 'GET',
+      headers: {
+        Authorization: authHeader
+      }
     });
     
     const data = await response.json();

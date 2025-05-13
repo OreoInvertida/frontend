@@ -72,11 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => {
                 // Handle successful registration
                 console.log('Registration successful', response);
-                
+                console.log('User registered successfully with:', response.access_token);
                 // Store auth token if provided by the API
                 if (response.token) {
-                    sessionStorage.setItem('auth_token', response.token);
+                    sessionStorage.setItem('auth_token', response.access_token);
+                    sessionStorage.setItem('token_type', response.token_type);
+                    sessionStorage.setItem('user_id',  encryptedData['document-number']);
                 }
+                //print('User registered successfully with:', response.token);
                 
                 // Show success message
                 showSuccessMessage('¡Cuenta registrada exitosamente! Accediendo a tu carpeta...');
@@ -155,9 +158,12 @@ async function registerUser(userData) {
             ].filter(part => part.trim()).join(', '),
             password: userData.password
         };
+        print('Data object to send:', dataObject);
         
         // Append the data object as JSON
         formData.append('data', JSON.stringify(dataObject));
+        print('Stringify version:');
+        print(JSON.stringify(dataObject));
         
         // Get the file from the form
         const fileInput = document.getElementById('identity-document');

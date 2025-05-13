@@ -39,6 +39,7 @@ export const AuthService = {
     // Clear tokens from sessionStorage
     sessionStorage.removeItem('auth_token');
     sessionStorage.removeItem('token_type');
+    sessionStorage.clear();
     
     // Call logout endpoint (useful for server-side session cleanup)
     try {

@@ -25,15 +25,15 @@ export const ApiService = {
    * @returns {Promise} - Promise resolving to the API response
    */
   async post(endpoint, data, options = {}) {
-    const headers = { 'Content-Type': 'application/json' };
-
+    const isFormData = data instanceof FormData;
+    const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
     console.log('ApiService.post - Endpoint received:', endpoint);
 
     return fetch(endpoint, {
       ...options,
       headers: { ...headers, ...options.headers },
       method: 'POST',
-      body: JSON.stringify(data)
+      body: isFormData ? data : JSON.stringify(data)
     });
   },
 
