@@ -27,6 +27,10 @@ async function apiRequest(endpoint, options = {}) {
     body: options.body,
   };
 
+  if (options.body && typeof options.body === 'object') {
+   delete requestOptions.headers['content-type']; 
+  } 
+  
   // Add auth token if available with the token_type
   const token = options.auth_token;
   const tokenType = options.token_type;
