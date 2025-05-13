@@ -37,7 +37,28 @@ export const OperatorService = {
     return ApiService.post('/operators/transfers', {
       targetOperatorId: operatorId
     });
+  },
+
+
+  async transferUserToOperator({ user_id, operator_name, operator_id, destination_url }) {
+  return ApiService.post('/transfers/outgoing', {
+    user_id,
+    operator_name,
+    operator_id,
+    destination_url
+  }, {
+    headers: {
+      'Authorization': `${sessionStorage.getItem('token_type')} ${sessionStorage.getItem('auth_token')}`
+    }
+  });
   }
+
+
+
+
 };
+
+
+
 
 export default OperatorService;

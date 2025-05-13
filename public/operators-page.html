@@ -119,5 +119,30 @@
         // Initialize the common layout with the active page
         initCommonLayout('operators');
     </script>
+    <!-- Transfer Confirmation Modal -->
+<div class="modal fade" id="transferConfirmationModal" tabindex="-1" aria-labelledby="transferConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="transferConfirmationModalLabel">Confirmar Transferencia</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas transferir tu carpeta al operador <strong id="targetOperatorName"></strong>?</p>
+        <div class="form-check mt-3">
+          <input class="form-check-input" type="checkbox" id="confirmTransferCheck">
+          <label class="form-check-label" for="confirmTransferCheck">
+            Confirmo que deseo realizar esta transferencia
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="confirmTransferBtn" disabled>Confirmar Transferencia</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

@@ -364,11 +364,11 @@ function showTransferDocumentDialog(selectedDoc) {
                     'Content-Type': 'application/json',
                     'Authorization': `${sessionStorage.getItem('token_type')} ${sessionStorage.getItem('auth_token')}`
                 },
-                body: {
+                body: JSON.stringify({
                     user_id: parseInt(userId),
                     document_path: documentPath,
                     recipient_email: email
-                }
+                })
             });
 
             const result = await response.json();

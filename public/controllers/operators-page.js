@@ -239,10 +239,19 @@ function filterOperators() {
  * @param {Object} operator - Operator data object
  */
 function showOperatorDetails(operator) {
+    // Set current operator status
+    console.log('received operator:', operator);
+    const requestTransferBtn = document.getElementById('requestTransferBtn');
+    
     // Set the modal title
+    requestTransferBtn.dataset.operatorId = operator.id;
+    requestTransferBtn.dataset.operatorName = operator.name;
+    requestTransferBtn.dataset.operatorUrl = operator.transferAPI;  // <--- AGREGA ESTA LÍNEA
+
+
     const modalTitle = document.getElementById('operatorDetailsModalLabel');
     if (modalTitle) {
-        modalTitle.textContent = `Detalles del Operador: ${operator.name}`;
+        modalTitle.textContent = `Detalles del Operador: ${operator.operatorName}`;
     }
     
     // Populate operator details
@@ -254,7 +263,7 @@ function showOperatorDetails(operator) {
                     <i class="bi bi-${operator.icon}"></i>
                 </div>
                 <div>
-                    <h4 class="mb-1">${operator.name}</h4>
+                    <h4 class="mb-1">${operator.operatorName}</h4>
                     <div class="text-muted">${operator.type === 'public' ? 'Operador Público' : 'Operador Privado'}</div>
                 </div>
             </div>
@@ -283,8 +292,7 @@ function showOperatorDetails(operator) {
         });
     }
     
-    // Set current operator status
-    const requestTransferBtn = document.getElementById('requestTransferBtn');    
+        
     if (requestTransferBtn) {
         if (operator.isCurrent) {
             requestTransferBtn.disabled = true;
@@ -295,7 +303,7 @@ function showOperatorDetails(operator) {
             
             // Store the selected operator ID for transfer
             requestTransferBtn.dataset.operatorId = operator.id;
-            requestTransferBtn.dataset.operatorName = operator.name;
+            requestTransferBtn.dataset.operatorName = operator.operatorName;
         }
     }
     
@@ -308,8 +316,19 @@ function showOperatorDetails(operator) {
  * Show transfer confirmation modal
  */
 function showTransferConfirmation() {
+    let requestTransferBtn = document.getElementById('requestTransferBtn');
+    let confirmTransferBtn = document.getElementById('confirmTransferBtn');
+
+
+    if (confirmTransferBtn && requestTransferBtn) {
+    confirmTransferBtn.disabled = true;
+    confirmTransferBtn.dataset.operatorId = requestTransferBtn.dataset.operatorId;
+    confirmTransferBtn.dataset.operatorName = requestTransferBtn.dataset.operatorName;
+    confirmTransferBtn.dataset.operatorUrl = requestTransferBtn.dataset.operatorUrl;
+}
+
+
     // Get the selected operator from the button's data attributes
-    const requestTransferBtn = document.getElementById('requestTransferBtn');
     if (!requestTransferBtn) return;
     
     const operatorId = requestTransferBtn.dataset.operatorId;
@@ -330,7 +349,7 @@ function showTransferConfirmation() {
     }
     
     // Disable the confirm button
-    const confirmTransferBtn = document.getElementById('confirmTransferBtn');
+    confirmTransferBtn = document.getElementById('confirmTransferBtn');
     if (confirmTransferBtn) {
         confirmTransferBtn.disabled = true;
         confirmTransferBtn.dataset.operatorId = operatorId;
@@ -348,31 +367,39 @@ function showTransferConfirmation() {
  * Submit transfer request
  */
 async function submitTransferRequest() {
-    const confirmTransferBtn = document.getElementById('confirmTransferBtn');
-    if (!confirmTransferBtn) return;
-    console.log('>>>> Confirm transfer button clicked');
-    const operatorId = confirmTransferBtn.dataset.operatorId;
-    
-    if (!operatorId) return;
-    
-    try {
-        // Import the operator service
-        const { default: OperatorService } = await import('../services/operator-service.js');
-        
-        // Call the transfer request method
-        const response = await OperatorService.requestTransfer(operatorId);
-        
-        if (response.ok) {
-            // Hide the confirmation modal
-            bootstrap.Modal.getInstance(document.getElementById('transferConfirmationModal')).hide();
-            
-            // Show success message
-            alert(response.message || 'Su solicitud de transferencia ha sido enviada. Recibirá una notificación cuando el proceso esté listo para completarse.');
-        } else {
-            alert('Error al enviar la solicitud de transferencia');
-        }
-    } catch (error) {
-        console.error('Error submitting transfer request:', error);
-        alert(error.data?.message || 'Error al enviar la solicitud de transferencia');
+  const confirmTransferBtn = document.getElementById('confirmTransferBtn');
+  if (!confirmTransferBtn) return;
+
+  const operatorId = confirmTransferBtn.dataset.operatorId;
+  const operatorName = confirmTransferBtn.dataset.operatorName;
+  const destinationUrl = confirmTransferBtn.dataset.operatorUrl;
+  const userId = sessionStorage.getItem('user_id');
+
+  if (!operatorId || !operatorName || !destinationUrl || !userId) {
+    alert('Faltan datos para procesar la transferencia');
+    return;
+  }
+
+  try {
+    const { default: OperatorService } = await import('../services/operator-service.js');
+
+    const response = await OperatorService.transferUserToOperator({
+      user_id: parseInt(userId),
+      operator_name: operatorName,
+      operator_id: operatorId,
+      destination_url: destinationUrl
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      bootstrap.Modal.getInstance(document.getElementById('transferConfirmationModal')).hide();
+      alert('Solicitud de transferencia enviada correctamente.');
+    } else {
+      alert(result.message || 'Error al solicitar transferencia');
     }
+  } catch (error) {
+    console.error('Error submitTransferRequest:', error);
+    alert('Error al solicitar transferencia');
+  }
 }

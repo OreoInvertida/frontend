@@ -9,6 +9,7 @@ const app = express()
 const port = 8080
 app.use(bodyParser.json())
 app.use(express.static('public'))
+app.use(express.json());
 
 // Login
 app.post('/auth/login', async (req, res) => {
@@ -161,18 +162,26 @@ app.delete('/documents/:userid/:filename', async (req, res) => {
 
 app.post('/transfers/share_doc', async (req, res) => {
   try {
+    const truebody = req.body;
     const authHeader = req.headers['authorization'];
     console.log('→ Transfer POST recibido desde front:');
-    console.log(req.body);
+    console.log(req.body.user_id);
+    console.log(req.body.document_path);
+    console.log(req.body.recipient_email);
     const response = await apiRequest('/transfers/share_doc', {
       method: 'POST',
+      body: JSON.stringify({
+          "user_id" : req.body.user_id,
+          "document_path" : req.body.document_path,
+          "recipient_email": req.body.recipient_email
+      }),
       headers: {
-        'Authorization': authHeader,
-        'Content-Type': 'application/json',
+        'Authorization': authHeader
       },
-      body: JSON.stringify(req.body),
+      
     });
 
+    console.log('→ Transfer POST recibido desde back:');
     const data = await response.json();
     return res.status(response.status).json(data);
   } catch (error) {
@@ -183,6 +192,36 @@ app.post('/transfers/share_doc', async (req, res) => {
     });
   }
 });
+
+app.post('/transfers/outgoing', async (req, res) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    console.log('→ Transfer USER recibido desde front:');
+    console.log(req.body);
+
+    const response = await apiRequest('/transfers/outgoing', {
+      method: 'POST',
+      headers: {
+        'Authorization': authHeader,
+      },
+      body: JSON.stringify({
+          "user_id" : req.body.user_id,
+          "operator_name" : "Operador Marcianos",
+          "operator_id": "681466aaedee130015720b44",
+          "destination_url" : "https://api.marcianos.me/api/transferCitizen"
+      }),
+    });
+
+    const data = await response.json();
+    return res.status(response.status).json(data);
+  } catch (error) {
+    console.error('Transfer USER error:', JSON.stringify(error, null, 2));
+    return res.status(error.status || 500).json({
+      message: error.message || 'Error al solicitar transferencia'
+    });
+  }
+});
+
 
 
 app.get('/operators', async (req, res) => {
