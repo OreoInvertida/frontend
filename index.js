@@ -4,6 +4,7 @@ const apiRequest = require('./backend')
 const multer = require('multer')
 const fs = require('fs')
 const path = require('path')
+const { Readable } = require('stream')
 
 const app = express()
 const port = 8080
@@ -192,6 +193,40 @@ app.post('/transfers/share_doc', async (req, res) => {
     });
   }
 });
+
+app.get('/documents/doc/*path', async(req,res) => {
+
+  const params = req.params.path.join("/")
+
+  console.log(params)
+
+
+  
+  try {
+    const fileResponse = await apiRequest('/documents/doc/' + params, {
+      auth_token: req.headers['auth_token'],
+      token_type: req.headers['token_type'],
+      method: 'GET',
+    });
+    
+    console.log(fileResponse)
+
+        // Set appropriate headers
+    res.setHeader('Content-Disposition', `attachment; filename="${req.params.path[1]}"`);
+    res.setHeader('Content-Type', fileResponse.headers.get('content-type') || 'application/octet-stream');
+    
+      
+    const stream = Readable.fromWeb(fileResponse.body);
+    stream.pipe(res);
+
+  } catch (error) {
+    console.error("Download error:", error);
+    return res.status(error.status || 500).json({
+      message: error.message || 'Internal server error'
+    });
+  }
+})
+
 
 app.post('/transfers/outgoing', async (req, res) => {
   try {

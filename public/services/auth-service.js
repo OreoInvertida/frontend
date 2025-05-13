@@ -24,7 +24,7 @@ export const AuthService = {
    */
   async register(userData) {
     // Extract the path from the full URL
-    const registerPath = AUTH_ENDPOINTS.REGISTER.replace(API_BASE_URL, '');
+    const registerPath = AUTH_ENDPOINTS.REGISTER
     console.log('AuthService.register - Full endpoint:', AUTH_ENDPOINTS.REGISTER);
     console.log('AuthService.register - Path after removing base URL:', registerPath);
     

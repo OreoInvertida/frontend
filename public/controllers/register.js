@@ -35,8 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup email validation
     setupEmailValidation('email');
     
-    // Setup file size validation (1MB limit)
-    setupFileSizeValidation(fileInput, fileSizeFeedback, 1024 * 1024);
 
     // Form validation
     form.addEventListener('input', () => {
@@ -86,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Redirect directly to folder page after a short delay
                 setTimeout(() => {
-                    window.location.href = 'folder-page.html';
+                    window.location.href = 'index.html';
                 }, 2000);
             })
             .catch(error => {
@@ -158,21 +156,15 @@ async function registerUser(userData) {
             ].filter(part => part.trim()).join(', '),
             password: userData.password
         };
-        print('Data object to send:', dataObject);
+
         
         // Append the data object as JSON
         formData.append('data', JSON.stringify(dataObject));
-        print('Stringify version:');
-        print(JSON.stringify(dataObject));
-        
+
         // Get the file from the form
         const fileInput = document.getElementById('identity-document');
         const file = fileInput.files[0];
         
-        // Check file size (limit to 1MB)
-        if (file && file.size > 1024 * 1024) {
-            throw new Error('El documento de identidad debe tener un tamaño máximo de 1MB');
-        }
         
         // Add file to form data if it exists
         if (file) {
