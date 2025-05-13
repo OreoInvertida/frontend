@@ -55,7 +55,6 @@ const storage = multer.diskStorage({
     cb(null, './temp-uploads')
   },
   filename: function (req, file, cb) {
-    console.log(`>>>>> ${req.params.filename}`);
     cb(null, req.params.filename)
   }
 })
@@ -80,7 +79,6 @@ app.put('/documents/doc/:user_id/:filename', upload.single('file'), async (req, 
 
     // Create form data for the API request
     const payload = new FormData();
-    console.log(`>>>>> ${req.params.user_id} ${req.params.filename}`);
     // Add file to form data
     const file = await fs.openAsBlob(req.file.path);
     payload.set('file', file, req.params.filename);
