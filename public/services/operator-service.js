@@ -11,16 +11,14 @@ export const OperatorService = {
    * @returns {Promise} - Promise resolving to operators data
    */
   async getOperators() {
-    return ApiService.get('/operators');
+    return ApiService.get('/operators', {
+      headers: {
+        'auth_token': sessionStorage.getItem('auth_token'),
+        'token_type': sessionStorage.getItem('token_type')
+      }
+    });
   },
-  
-  /**
-   * Get current operator information
-   * @returns {Promise} - Promise resolving to current operator data
-   */
-  async getCurrentOperator() {
-    return ApiService.get('/operators/current');
-  },
+
   
   /**
    * Get transfer history

@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function initOperatorsPage() {
     // Load initial data
     loadOperatorsData();
-    loadCurrentOperator();
     
     // Setup event listeners
     setupFilterListeners();
@@ -93,8 +92,9 @@ async function loadOperatorsData() {
         // Get operators from API
         const response = await OperatorService.getOperators();
         
-        if (response.success && response.operators) {
-            renderOperators(response.operators);
+        if (response.ok) {
+            const operators = await response.json();
+            renderOperators(operators);
         } else {
             console.error('Error loading operators:', response);
             alert('Error al cargar la lista de operadores.');
@@ -116,23 +116,38 @@ function renderOperators(operators) {
     operatorsGrid.innerHTML = '';
     
     operators.forEach(operator => {
+        operator.id = operator._id;
         const operatorCard = document.createElement('div');
-        operatorCard.className = `operator-card ${operator.isCurrent ? 'current' : ''}`;
+        const isCurrent = operator.id == '67ff23d72090cf00151f0175';
+        operatorCard.className = `operator-card ${isCurrent ? 'current' : ''}`;
         operatorCard.dataset.id = operator.id;
+        operator.capabilities = [
+            { name: 'Documentos Personales', icon: 'file-earmark-person' },
+            { name: 'Solicitudes Entidades Públicas', icon: 'bank' },
+            { name: 'Compartir Documentos', icon: 'share' }
+        ];
+        operator.stats = {
+            users: '5,000,000+',
+            documents: '25,000,000+',
+            availability: '99.9%'
+        };
+        operator.icon = 'building';
+        operator.type = 'public';
+        operator.description = 'Operador principal de carpeta ciudadana';
         
         // Current indicator
         let currentIndicator = '';
-        if (operator.isCurrent) {
+        if (isCurrent) {
             currentIndicator = '<div class="current-indicator mt-2 text-primary"><i class="bi bi-check-circle-fill"></i> Operador Actual</div>';
         }
         
         operatorCard.innerHTML = `
             <div class="operator-logo">
-                <i class="bi bi-${operator.icon}"></i>
+                <i class="bi bi-building"></i>
             </div>
-            <div class="operator-name">${operator.name}</div>
-            <div class="operator-type">${operator.type === 'public' ? 'Operador Público' : 'Operador Privado'}</div>
-            <div class="operator-details">${operator.description}</div>
+            <div class="operator-name">${operator.operatorName}</div>
+            <div class="operator-type">Operador Privado</div>
+            <div class="operator-details"></div>
             ${currentIndicator}
         `;
         
@@ -143,27 +158,6 @@ function renderOperators(operators) {
         
         operatorsGrid.appendChild(operatorCard);
     });
-}
-
-/**
- * Load current operator information
- */
-async function loadCurrentOperator() {
-    try {
-        // Import the operator service
-        const { default: OperatorService } = await import('../services/operator-service.js');
-        
-        // Get current operator from API
-        const response = await OperatorService.getCurrentOperator();
-        
-        if (response.success && response.operator) {
-            renderCurrentOperator(response.operator);
-        } else {
-            console.error('Error loading current operator:', response);
-        }
-    } catch (error) {
-        console.error('Error loading current operator:', error);
-    }
 }
 
 /**

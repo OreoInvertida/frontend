@@ -154,6 +154,25 @@ app.delete('/documents/:userid/:filename', async (req, res) => {
   }
 })
 
+app.get('/operators', async (req, res) => {
+  try {
+    const response = await apiRequest('/orchestrator/operators', {
+      auth_token: req.headers['auth_token'],
+      token_type: req.headers['token_type'],
+      method: 'GET',
+    });
+    
+    const data = await response.json();
+    // Forward the API response to the client
+    return res.status(response.status).json(data);
+  } catch (error) {
+    console.error('Operators error:', error);
+    return res.status(error.status || 500).json({
+      message: error.message || 'Internal server error'
+    });
+  }
+}
+)
 app.listen(port, () => {
   console.log(`Listening on port ${port}`)
 })
