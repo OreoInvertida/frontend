@@ -85,6 +85,7 @@ function createDocumentElement(doc) {
     
     if (doc.path) {
         docElement.dataset.path = doc.path;
+        docElement.dataset.filename = doc.filename
     } else {
         // Set a default path or empty string if not available
         docElement.dataset.path = '';
@@ -421,9 +422,30 @@ async function downloadSelectedDocument() {
         return;
     }
     
-    const fileId = selectedDoc.dataset.id;
-    
-    alert('Próximamente');
+
+    const filepath = selectedDoc.dataset.path
+    const filename = selectedDoc.dataset.filename
+
+     // Import folder service
+     const { default: FolderService } = await import('../services/folder-service.js');
+        
+     // Send certification request
+    const response =   await FolderService.downloadFile(filepath);
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.style.display = 'none';
+
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+
+    URL.revokeObjectURL(url);
+
 }
 
 /**

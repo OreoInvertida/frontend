@@ -43,10 +43,9 @@ async function apiRequest(endpoint, options = {}) {
       requestOptions.headers['Authorization'] = `Bearer ${token}`;
     }
   }
-
   try {
     const response = await fetch(constants.API_BASE_URL + endpoint, requestOptions);
-
+  
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw {

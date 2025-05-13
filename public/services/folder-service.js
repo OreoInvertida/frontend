@@ -5,7 +5,7 @@
 
 import ApiService from './api-service.js';
 
-export const FolderService = {  
+export const FolderService = {
   /**
    * Get all files in the main folder
    * @returns {Promise} - Promise resolving to files data
@@ -13,50 +13,50 @@ export const FolderService = {
   async getFiles() {
     return ApiService.get('/files');
   },
-  
-/**
- * Upload a file to the main folder
- * @param {FormData} formData - FormData containing file and name
- * @returns {Promise} - Promise resolving to the uploaded file data
- */
+
+  /**
+   * Upload a file to the main folder
+   * @param {FormData} formData - FormData containing file and name
+   * @returns {Promise} - Promise resolving to the uploaded file data
+   */
   // Add this method to your FolderService in folder-service.js
   async uploadFile(formData) {
-      const userId = sessionStorage.getItem('user_id');
-      const filename = formData.get('name');
-      const file = formData.get('file');
+    const userId = sessionStorage.getItem('user_id');
+    const filename = formData.get('name');
+    const file = formData.get('file');
 
-      const uploadFormData = new FormData();
-      uploadFormData.append('file', file);
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', file);
 
-      try {
-          const response = await fetch(`/documents/doc/${userId}/${filename}`, {
-              method: 'PUT',
-              headers: {
-                  'auth_token': sessionStorage.getItem('auth_token'),
-                  'token_type': sessionStorage.getItem('token_type')
-              },
-              body: uploadFormData
-          });
-          
-          const data = await response.json();
-          
-          if (!response.ok) {
-              throw { status: response.status, data };
-          }
-          
-          return {
-              success: true,
-              ...data
-          };
-      } catch (error) {
-          console.error('Error uploading file:', error);
-          return {
-              success: false,
-              message: error.data?.message || 'Error uploading file'
-          };
+    try {
+      const response = await fetch(`/documents/doc/${userId}/${filename}`, {
+        method: 'PUT',
+        headers: {
+          'auth_token': sessionStorage.getItem('auth_token'),
+          'token_type': sessionStorage.getItem('token_type')
+        },
+        body: uploadFormData
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw { status: response.status, data };
       }
+
+      return {
+        success: true,
+        ...data
+      };
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      return {
+        success: false,
+        message: error.data?.message || 'Error uploading file'
+      };
+    }
   },
-  
+
   /**
    * Delete a file
    * @param {string} fileId - ID of the file to delete
@@ -70,17 +70,23 @@ export const FolderService = {
       }
     });
   },
-  
+
   /**
    * Download a file
    * @param {string} fileId - ID of the file to download
    * @returns {Promise} - Promise resolving to file download URL or blob
    */
-  async downloadFile(fileId) {
+  async downloadFile(filepath) {
     //TODO: Implement download logic
-    return
+
+    return ApiService.get(`/documents/doc/`+ filepath, {
+      headers: {
+        'auth_token': sessionStorage.getItem('auth_token'),
+        'token_type': sessionStorage.getItem('token_type')
+      }
+    });
   },
-  
+
   /**
    * Certify a file
    * @param {string} fileId - ID of the file to certify
@@ -89,9 +95,9 @@ export const FolderService = {
    */
   async certifyFile(fileid, filename, filepath) {
     return ApiService.post(`/document/certify`, {
-          document_id: fileid,
-          document_name: filename,
-          document_path: filepath
+      document_id: fileid,
+      document_name: filename,
+      document_path: filepath
     }, {
       headers: {
         'auth_token': sessionStorage.getItem('auth_token'),
