@@ -5,6 +5,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize the page
+    console.log('→ DOMContentLoaded triggered');
     initFolderPage();
 });
 
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * Initialize the folder page components
  */
 function initFolderPage() {
+    console.log('→ initFolderPage ejecutado');
     // Setup event listeners for toolbar buttons
     setupToolbarListeners();
     
@@ -130,6 +132,7 @@ function addDocumentSelectionListeners() {
  */
 function setupToolbarListeners() {
     // Add document button
+    console.log('→ setupToolbarListeners llamado');
     const addButton = document.querySelector('.tool-button[title="Agregar documento"]');
     if (addButton) {
         addButton.addEventListener('click', function() {
@@ -156,7 +159,9 @@ function setupToolbarListeners() {
     // Transfer document button
     const transferButton = document.querySelector('.tool-button[title="Transferir documento"]');
     if (transferButton) {
-        transferButton.addEventListener('click', function() {
+        console.log('→ Botón de transfer encontrado');
+        transferButton.addEventListener('click', function () {
+            console.log('→ Clic en transfer recibido');
             transferSelectedDocument();
         });
     }
@@ -284,7 +289,9 @@ function showAddDocumentDialog() {
             uploadButton.textContent = 'Subir';
         }
     });
-    
+
+
+
     // Clean up when modal is hidden
     modalElement.addEventListener('hidden.bs.modal', function() {
         // Remove event listener from upload button to prevent duplicates
@@ -293,6 +300,98 @@ function showAddDocumentDialog() {
         
         // Reset form
         document.getElementById('upload-form').reset();
+    });
+}
+
+function showTransferDocumentDialog(selectedDoc) {
+    console.log('→ Mostrando modal para:', selectedDoc.dataset.path);
+    const modalHTML = `
+    <div class="modal fade" id="transferDocumentModal" tabindex="-1" aria-labelledby="transferDocumentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transferDocumentModalLabel">Transferir Documento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="transfer-form">
+                        <div class="mb-3">
+                            <label for="recipient-email" class="form-label">Correo del destinatario</label>
+                            <input type="email" class="form-control" id="recipient-email" required>
+                        </div>
+                        <p class="small text-muted">Documento seleccionado: <strong>${selectedDoc.querySelector('p').textContent}</strong></p>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="send-transfer-button">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+
+    if (!document.getElementById('transferDocumentModal')) {
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+
+    const modalElement = document.getElementById('transferDocumentModal');
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+
+    document.getElementById('send-transfer-button').addEventListener('click', async () => {
+        const emailInput = document.getElementById('recipient-email');
+        const email = emailInput.value.trim();
+        const documentPath = selectedDoc.dataset.path;
+        const userId = sessionStorage.getItem('user_id');
+
+        if (!email) {
+            alert('Por favor ingresa un correo válido');
+            return;
+        }
+
+        try {
+            document.getElementById('send-transfer-button').innerHTML =
+              '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
+            const testbody = {
+                    user_id: parseInt(userId),
+                    document_path: documentPath,
+                    recipient_email: email
+                }
+            console.log('Transfer request body:', testbody);
+            const response = await fetch('/transfers/share_doc', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `${sessionStorage.getItem('token_type')} ${sessionStorage.getItem('auth_token')}`
+                },
+                body: {
+                    user_id: parseInt(userId),
+                    document_path: documentPath,
+                    recipient_email: email
+                }
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('Documento transferido exitosamente.');
+                modal.hide();
+            } else {
+                console.error('Transfer failed:', result);
+                alert(result.message || 'Error al transferir el documento.');
+            }
+        } catch (err) {
+            console.error('Transfer error:', err);
+            alert('Error al transferir el documento.');
+        } finally {
+            document.getElementById('send-transfer-button').textContent = 'Enviar';
+        }
+    });
+
+    modalElement.addEventListener('hidden.bs.modal', () => {
+        const button = document.getElementById('send-transfer-button');
+        button.replaceWith(button.cloneNode(true));
+        document.getElementById('transfer-form').reset();
     });
 }
 
@@ -388,16 +487,17 @@ async function certifySelectedDocument() {
  * Transfer the currently selected document
  */
 function transferSelectedDocument() {
+    console.log('→ Ejecutando transferSelectedDocument');
     const selectedDoc = document.querySelector('.document-item.selected');
-    
+
     if (!selectedDoc) {
         alert('Por favor selecciona un documento para transferir');
         return;
     }
-    
-    console.log('Transfer document:', selectedDoc.dataset.id);
-    alert('Documento transferido');
+
+    showTransferDocumentDialog(selectedDoc);
 }
+
 
 /**
  * Delete the currently selected document

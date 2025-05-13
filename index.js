@@ -159,6 +159,32 @@ app.delete('/documents/:userid/:filename', async (req, res) => {
   }
 })
 
+app.post('/transfers/share_doc', async (req, res) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    console.log('→ Transfer POST recibido desde front:');
+    console.log(req.body);
+    const response = await apiRequest('/transfers/share_doc', {
+      method: 'POST',
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(req.body),
+    });
+
+    const data = await response.json();
+    return res.status(response.status).json(data);
+  } catch (error) {
+    console.error('Transfer proxy error:', JSON.stringify(error, null, 2));
+    console.error('Transfer proxy error:', error);
+    return res.status(error.status || 500).json({
+      message: error.message || 'Error al transferir documento'
+    });
+  }
+});
+
+
 app.get('/operators', async (req, res) => {
   try {
     const response = await apiRequest('/orchestrator/operators', {
