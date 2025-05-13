@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Store auth token if provided by the API
                 if (response.token) {
-                    localStorage.setItem('auth_token', response.token);
+                    sessionStorage.setItem('auth_token', response.token);
                 }
                 
                 // Show success message

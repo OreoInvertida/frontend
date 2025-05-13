@@ -207,7 +207,7 @@ function logout() {
     }).catch(error => {
         console.error('Error importing AuthService:', error);
         // Fallback logout
-        localStorage.removeItem('auth_token');
+        sessionStorage.removeItem('auth_token');
         window.location.href = 'index.html';
     });
 }

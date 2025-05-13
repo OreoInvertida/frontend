@@ -57,9 +57,9 @@ function setupLoginForm() {
                 .then(response => {
                     // Handle successful login
                     console.log('Login successful', response);
-                    localStorage.setItem('auth_token', response.access_token);
-                    localStorage.setItem('token_type', response.token_type);
-                    localStorage.setItem('user_id', decodeJwtToken(response.access_token).payload.sub);
+                    sessionStorage.setItem('auth_token', response.access_token);
+                    sessionStorage.setItem('token_type', response.token_type);
+                    sessionStorage.setItem('user_id', decodeJwtToken(response.access_token).payload.sub);
                     // Import AuthService to store the tokens
                     import('../services/auth-service.js').then(({ default: AuthService }) => {
                         // Store authentication tokens using the new format
@@ -68,7 +68,7 @@ function setupLoginForm() {
                             AuthService.storeAuthTokens(response);
                         } else if (response.token) {
                             // Legacy token format (backward compatibility)
-                            localStorage.setItem('auth_token', response.token);
+                            sessionStorage.setItem('auth_token', response.token);
                         }
 
                         // Redirect to folder page

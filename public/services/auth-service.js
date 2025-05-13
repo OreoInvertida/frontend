@@ -36,9 +36,9 @@ export const AuthService = {
    * @returns {Promise} - Promise resolving when logout is complete
    */
   async logout() {
-    // Clear tokens from localStorage
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('token_type');
+    // Clear tokens from sessionStorage
+    sessionStorage.removeItem('auth_token');
+    sessionStorage.removeItem('token_type');
     
     // Call logout endpoint (useful for server-side session cleanup)
     try {
@@ -66,7 +66,7 @@ export const AuthService = {
    * @returns {boolean} - Whether the user is authenticated
    */
   isAuthenticated() {
-    return !!localStorage.getItem('auth_token');
+    return !!sessionStorage.getItem('auth_token');
   },
   
   /**
@@ -74,7 +74,7 @@ export const AuthService = {
    * @returns {string|null} - The authentication token or null if not authenticated
    */
   getToken() {
-    return localStorage.getItem('auth_token');
+    return sessionStorage.getItem('auth_token');
   },
   
   /**
@@ -82,7 +82,7 @@ export const AuthService = {
    * @returns {string|null} - The token type (e.g., 'bearer') or null if not authenticated
    */
   getTokenType() {
-    return localStorage.getItem('token_type');
+    return sessionStorage.getItem('token_type');
   },
   
   /**
@@ -91,11 +91,11 @@ export const AuthService = {
    */
   storeAuthTokens(authData) {
     if (authData.access_token) {
-      localStorage.setItem('auth_token', authData.access_token);
+      sessionStorage.setItem('auth_token', authData.access_token);
     }
     
     if (authData.token_type) {
-      localStorage.setItem('token_type', authData.token_type);
+      sessionStorage.setItem('token_type', authData.token_type);
     }
   }
 };

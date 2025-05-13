@@ -21,7 +21,7 @@ export const FolderService = {
  */
   // Add this method to your FolderService in folder-service.js
   async uploadFile(formData) {
-      const userId = localStorage.getItem('user_id');
+      const userId = sessionStorage.getItem('user_id');
       const filename = formData.get('name');
       const file = formData.get('file');
 
@@ -32,8 +32,8 @@ export const FolderService = {
           const response = await fetch(`/documents/doc/${userId}/${filename}`, {
               method: 'PUT',
               headers: {
-                  'auth_token': localStorage.getItem('auth_token'),
-                  'token_type': localStorage.getItem('token_type')
+                  'auth_token': sessionStorage.getItem('auth_token'),
+                  'token_type': sessionStorage.getItem('token_type')
               },
               body: uploadFormData
           });
@@ -62,8 +62,13 @@ export const FolderService = {
    * @param {string} fileId - ID of the file to delete
    * @returns {Promise} - Promise resolving to deletion result
    */
-  async deleteFile(fileId) {
-    return ApiService.delete(`/files/${fileId}`);
+  async deleteFile(id) {
+    return ApiService.delete(`/documents/${id}`, {
+      headers: {
+        'auth_token': sessionStorage.getItem('auth_token'),
+        'token_type': sessionStorage.getItem('token_type')
+      }
+    });
   },
   
   /**
@@ -83,7 +88,7 @@ export const FolderService = {
       // This would typically be a blob response
       const response = await fetch(`${ApiService.baseUrl}/files/${fileId}/download`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('auth_token')}`
         }
       });
       
@@ -104,8 +109,8 @@ export const FolderService = {
           document_path: filepath
     }, {
       headers: {
-        'auth_token': localStorage.getItem('auth_token'),
-        'token_type': localStorage.getItem('token_type')
+        'auth_token': sessionStorage.getItem('auth_token'),
+        'token_type': sessionStorage.getItem('token_type')
       }
     });
   }

@@ -28,10 +28,10 @@ async function loadDocumentsFromApi() {
         const { default: ApiService } = await import('../services/api-service.js');
         
         // Get files from API
-        const response = await ApiService.get('/documents/metadata/' + localStorage.getItem('user_id'), {
+        const response = await ApiService.get('/documents/metadata/' + sessionStorage.getItem('user_id'), {
             headers: {
-                'auth_token': localStorage.getItem('auth_token'),
-                'token_type': localStorage.getItem('token_type'),
+                'auth_token': sessionStorage.getItem('auth_token'),
+                'token_type': sessionStorage.getItem('token_type'),
             }
         });
         
@@ -79,6 +79,7 @@ function createDocumentElement(doc) {
     const docElement = document.createElement('div');
     docElement.className = 'document-item';
     docElement.dataset.id = doc.id;
+    sessionStorage.setItem(doc.id, JSON.stringify(doc));
     
     if (doc.path) {
         docElement.dataset.path = doc.path;
@@ -323,17 +324,7 @@ async function downloadSelectedDocument() {
     
     const fileId = selectedDoc.dataset.id;
     
-    try {
-        // Import folder service
-        const { default: FolderService } = await import('../services/folder-service.js');
-        
-        // Call the download method
-        await FolderService.downloadFile(fileId);
-        console.log('Download document:', fileId);
-    } catch (error) {
-        console.error('Error downloading document:', error);
-        alert('Error al descargar el documento');
-    }
+    alert('Próximamente');
 }
 
 /**
@@ -405,7 +396,7 @@ function transferSelectedDocument() {
     }
     
     console.log('Transfer document:', selectedDoc.dataset.id);
-    alert('Funcionalidad para transferir documento');
+    alert('Documento transferido');
 }
 
 /**
@@ -413,6 +404,8 @@ function transferSelectedDocument() {
  */
 async function deleteSelectedDocument() {
     const selectedDoc = document.querySelector('.document-item.selected');
+    const doc = JSON.parse(sessionStorage.getItem(selectedDoc.dataset.id));
+    const path = doc.path;
     
     if (!selectedDoc) {
         alert('Por favor selecciona un documento para eliminar');
@@ -421,15 +414,13 @@ async function deleteSelectedDocument() {
     
     if (confirm('¿Estás seguro de que quieres eliminar este documento?')) {
         try {
-            const fileId = selectedDoc.dataset.id;
-            
             // Import folder service
             const { default: FolderService } = await import('../services/folder-service.js');
             
             // Call the delete method
-            const response = await FolderService.deleteFile(fileId);
+            const response = await FolderService.deleteFile(path);
             
-            if (response.success) {
+            if (response.ok) {
                 // Remove from UI
                 selectedDoc.remove();
             } else {
